@@ -90,13 +90,13 @@ func (pm *PowerManager) ChangeDeviceState(device string, command string) (string
 
 	jsonData, err := json.Marshal(cmd)
 	if err != nil {
-		msg := fmt.Sprintf("ошибка при кодировании в JSON: %v", err)
+		msg := fmt.Sprintf("JSON encoding error: %v", err)
 		return msg, fmt.Errorf(msg)
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		msg := fmt.Sprintf("ошибка при создании запроса: %v", err)
+		msg := fmt.Sprintf("error creating request: %v", err)
 		return msg, fmt.Errorf(msg)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -104,19 +104,19 @@ func (pm *PowerManager) ChangeDeviceState(device string, command string) (string
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		msg := fmt.Sprintf("ошибка при выполнении запроса: %v", err)
+		msg := fmt.Sprintf("error while executing request: %v", err)
 		return msg, fmt.Errorf(msg)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("не удалось изменить состояние устройства, статус: %d", resp.StatusCode)
+		msg := fmt.Sprintf("failed to change device state, status: %d", resp.StatusCode)
 		return msg, fmt.Errorf(msg)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		msg := fmt.Sprintf("ошибка при чтении ответа: %v", err)
+		msg := fmt.Sprintf("error reading response: %v", err)
 		return msg, fmt.Errorf(msg)
 	}
 

@@ -5,7 +5,7 @@ type PowerManager struct {
 	Mask     string `json:"mask"`     // 255.255.255.0
 	Gateway  string `json:"gateway"`  // 192.168.66.1
 	Login    string `json:"login"`    // admin
-	Password string `json:"password"` //usermvs
+	Password string `json:"password"` // usermvs
 }
 
 func NewPowerManager(IP string) *PowerManager {

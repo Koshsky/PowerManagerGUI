@@ -32,7 +32,7 @@ func Run() {
 func NewTab(p *api.PowerManager) *container.TabItem {
 	tabTitle := p.IP
 
-	textDisplay := widget.NewLabel("Скоро здесь появится информация, но пока просто наслаждайтесь пустотой!")
+	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 	button1 := widget.NewButton("get_info", func() {
 		if info, err := p.GetInfo(); err == nil {
 			textDisplay.SetText(info.Str())
