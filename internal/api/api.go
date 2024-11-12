@@ -9,7 +9,7 @@ import (
 )
 
 func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
-	url := fmt.Sprintf("http://%s/get_info.json", pm.IP)
+	url := fmt.Sprintf("%s/get_info.json", pm.IP) // TODO: узнать так ли это делается и какие нюансы!
 	response, err := http.Get(url)
 	if err != nil {
 		return PowerManagerInfo{}, err
@@ -32,7 +32,7 @@ func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 }
 
 func (pm *PowerManager) GetAnalog() (SensorData, error) {
-	url := fmt.Sprintf("http://%s/get_analog.json", pm.IP)
+	url := fmt.Sprintf("%s/get_analog.json", pm.IP)
 	response, err := http.Get(url)
 	if err != nil {
 		return SensorData{}, err
@@ -54,7 +54,7 @@ func (pm *PowerManager) GetAnalog() (SensorData, error) {
 }
 
 func (pm *PowerManager) GetStatus() (DeviceStatus, error) {
-	url := fmt.Sprintf("http://%s/get_status.json", pm.IP)
+	url := fmt.Sprintf("%s/get_status.json", pm.IP)
 	response, err := http.Get(url)
 	if err != nil {
 		return DeviceStatus{}, err
@@ -81,7 +81,7 @@ type Command struct {
 }
 
 func (pm *PowerManager) ChangeDeviceState(device string, command string) (string, error) {
-	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
+	url := fmt.Sprintf("%s/changeState.json", pm.IP)
 
 	cmd := Command{
 		Device: device,

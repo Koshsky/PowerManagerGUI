@@ -15,7 +15,8 @@ func Run() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Power Manager Control")
 	// TODO: РЕАЛИЗОВАТЬ СКАНИРОВАНИЕ, ПОЛУЧИТЬ СПИСОК IPS
-	IPs := []string{"10.2.1.121", "10.2.1.122", "10.2.2.121", "10.2.3.121"} // TODO: не забыть убрать это!!
+	IPs := []string{"10.2.1.121", "10.2.1.122", "10.2.2.121", "10.2.3.121",
+		"10.2.1.121", "10.2.1.122", "10.2.2.121", "10.2.3.121"} // TODO: не забыть убрать это!!
 
 	powerManagers := api.CreatePowerManagers(IPs)
 
@@ -53,6 +54,7 @@ func NewTab(p *api.PowerManager) *container.TabItem {
 		} else {
 			log.Println(err)
 		}
+		// textDisplay.SetText(api.Draft())
 	})
 	deviceLabel := widget.NewEntry()
 	deviceLabel.SetPlaceHolder("Device")
@@ -64,7 +66,6 @@ func NewTab(p *api.PowerManager) *container.TabItem {
 	})
 	content := container.NewVBox(
 		button1, button2, button3,
-		widget.NewLabel(""),
 		deviceLabel, stateLabel,
 		button4,
 		textDisplay)
