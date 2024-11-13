@@ -2,6 +2,7 @@ package gui
 
 import (
 	"log"
+	"strconv"
 
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -14,23 +15,57 @@ import (
 func Run() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Power Manager Control")
-	// TODO: РЕАЛИЗОВАТЬ СКАНИРОВАНИЕ, ПОЛУЧИТЬ СПИСОК IPS
-	IPs := []string{"10.2.1.121", "10.2.1.122", "10.2.2.121", "10.2.3.121",
-		"10.2.1.121", "10.2.1.122", "10.2.2.121", "10.2.3.121"} // TODO: не забыть убрать это!!
-
-	powerManagers := api.CreatePowerManagers(IPs)
-
-	tabsItems := container.NewAppTabs()
-	for _, p := range powerManagers {
-		tab := NewTab(p)
-		tabsItems.Append(tab)
-	}
-	myWindow.SetContent(tabsItems)
-	myWindow.Resize(fyne.NewSize(800, 600))
+	InitWindow(myWindow)
 	myWindow.ShowAndRun()
 }
 
-func NewTab(p *api.PowerManager) *container.TabItem {
+func InitWindow(myWindow fyne.Window) {
+	tabTitle := "HUB"
+	// TODO: установить значения по умолчанию для этих ентрис
+	startEntry := widget.NewEntry()
+	startEntry.SetPlaceHolder("Start")
+	endEntry := widget.NewEntry()
+	endEntry.SetPlaceHolder("End")
+
+	messageLabel := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
+	button := widget.NewButton("SCAN NETWORK AND REFRESH", func() {
+		a, err1 := strconv.Atoi(startEntry.Text)
+		b, err2 := strconv.Atoi(endEntry.Text)
+		if err1 != nil {
+			messageLabel.SetText("Start: " + err1.Error())
+		} else if err2 != nil {
+			messageLabel.SetText("End: " + err2.Error())
+		} else {
+			IPs, _ := api.ScanNetworkDraft(a, b)
+			RefreshTabs(myWindow, IPs)
+		}
+	})
+
+	content := container.NewVBox(startEntry, endEntry, button, messageLabel)
+	tab := container.NewTabItem(tabTitle, content)
+	tabsItems := container.NewAppTabs()
+	tabsItems.Append(tab)
+	myWindow.SetContent(tabsItems)
+	myWindow.Resize(fyne.NewSize(800, 600))
+}
+
+func RefreshTabs(myWindow fyne.Window, IPs []string) {
+	powerManagers := api.CreatePowerManagers(IPs)
+	
+	tabsItems := myWindow.Content().(*container.AppTabs)
+
+	for i := len(tabsItems.Items) - 1; i > 0; i-- {
+		tabsItems.Remove(tabsItems.Items[i])
+	}
+	for i := 0; i < len(powerManagers); i++ {
+		newTab := NewManagerTab(powerManagers[i])
+		tabsItems.Append(newTab)
+	}
+
+	myWindow.SetContent(tabsItems)
+}
+
+func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	tabTitle := p.IP
 
 	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
@@ -38,6 +73,7 @@ func NewTab(p *api.PowerManager) *container.TabItem {
 		if info, err := p.GetInfo(); err == nil {
 			textDisplay.SetText(info.Str())
 		} else {
+			textDisplay.SetText(api.Draft())
 			log.Println(err)
 		}
 	})
@@ -54,19 +90,18 @@ func NewTab(p *api.PowerManager) *container.TabItem {
 		} else {
 			log.Println(err)
 		}
-		// textDisplay.SetText(api.Draft())
 	})
-	deviceLabel := widget.NewEntry()
-	deviceLabel.SetPlaceHolder("Device")
-	stateLabel := widget.NewEntry()
-	stateLabel.SetPlaceHolder("State")
+	deviceEntry := widget.NewEntry()
+	deviceEntry.SetPlaceHolder("Device")
+	stateEntry := widget.NewEntry()
+	stateEntry.SetPlaceHolder("State")
 	button4 := widget.NewButton("changeState", func() {
-		msg, _ := p.ChangeDeviceState(deviceLabel.Text, stateLabel.Text)
+		msg, _ := p.ChangeDeviceState(deviceEntry.Text, stateEntry.Text)
 		textDisplay.SetText(msg)
 	})
 	content := container.NewVBox(
 		button1, button2, button3,
-		deviceLabel, stateLabel,
+		deviceEntry, stateEntry,
 		button4,
 		textDisplay)
 	tab := container.NewTabItem(tabTitle, content)
