@@ -2,7 +2,6 @@ package gui
 
 import (
 	"log"
-	"strconv"
 
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -21,34 +20,14 @@ func Run() {
 
 func InitWindow(myWindow fyne.Window) {
 	tabTitle := "HUB"
-	// TODO: установить значения по умолчанию для этих ентрис В СООТВЕТСТВИЕ С ФАКТИЧЕСКИМИМ ЗНАЧЕНИЯМИ
-	startLabel := widget.NewLabel("Minimum value of the 4th octet of the IP address")
-	startEntry := widget.NewEntry()
-	startEntry.SetPlaceHolder("Start value")
-	startEntry.SetText("100")
 
-	endLabel := widget.NewLabel("Maximum value of the 4th octet of the IP address")
-	endEntry := widget.NewEntry()
-	endEntry.SetPlaceHolder("End value")
-	endEntry.SetText("120")
-
+	// TODO: такое сообщение используется очень часто. вынести как константу!
 	messageLabel := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 	button := widget.NewButton("SCAN NETWORK AND REFRESH", func() {
-		a, err1 := strconv.Atoi(startEntry.Text)
-		b, err2 := strconv.Atoi(endEntry.Text)
-		if err1 != nil {
-			messageLabel.SetText("Start: " + err1.Error())
-		} else if err2 != nil {
-			messageLabel.SetText("End: " + err2.Error())
-		} else {
-			IPs, _ := api.ScanNetworkDraft(a, b)
-			RefreshTabs(myWindow, IPs)
-		}
+		ScanAndRefresh(myWindow)
 	})
 
 	content := container.NewVBox(
-		startLabel, startEntry,
-		endLabel, endEntry,
 		button,
 		messageLabel,
 	)
@@ -59,20 +38,17 @@ func InitWindow(myWindow fyne.Window) {
 	myWindow.Resize(fyne.NewSize(800, 600))
 }
 
-func RefreshTabs(myWindow fyne.Window, IPs []string) {
+func ScanAndRefresh(myWindow fyne.Window) {
+	IPs, _ := api.ScanNetworkDraft() // TODO: протестировать ScanNetwork, ЗАМЕНИТЬ ЗАГЛУШКУ ИМ!!!
 	powerManagers := api.CreatePowerManagers(IPs)
 
-	tabsItems := myWindow.Content().(*container.AppTabs)
-
-	for i := len(tabsItems.Items) - 1; i > 0; i-- {
-		tabsItems.Remove(tabsItems.Items[i])
-	}
+	HUB := myWindow.Content().(*container.AppTabs).Items[0]
+	newTabsItems := container.NewAppTabs(HUB)
 	for i := 0; i < len(powerManagers); i++ {
 		newTab := NewManagerTab(powerManagers[i])
-		tabsItems.Append(newTab)
+		newTabsItems.Append(newTab)
 	}
-
-	myWindow.SetContent(tabsItems)
+	myWindow.SetContent(newTabsItems)
 }
 
 func NewManagerTab(p *api.PowerManager) *container.TabItem {

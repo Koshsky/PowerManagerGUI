@@ -2,36 +2,49 @@ package api
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"sync"
 	"time"
-
-	"github.com/go-ping/ping"
 )
 
-func ScanNetworkDraft(start, end int) ([]string, error) {
-	IPs := []string{}
-	for i := start; i < end; i++ {
-		IPs = append(IPs, "10.2.1."+strconv.Itoa(i))
-	}
-	return IPs, nil
-}
-
-// ScanNetwork принимает диапазон адресов и возвращает список доступных IP-адресов.
-func ScanNetwork(start, end int) ([]string, error) {
-	// TODO: узнать значение start end для КУУФС
+func ScanGERS() ([]string, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var reachableIPs []string
 
-	for a := 1; a <= 255; a++ { // operation room
-		for b := start; b <= end; b++ {
-			ip := fmt.Sprintf("10.2.%d.%d", a, b)
+	for x := 1; x < 256; x++ {
+		ip := "10.4." + strconv.Itoa(x) + ".5"
+		wg.Add(1)
+
+		go func(ip string) {
+			defer wg.Done()
+			success, _, err := Ping(ip, 80) // TODO: вынести порт в перменную, спросить порт
+			if err == nil && success {
+				mu.Lock()
+				reachableIPs = append(reachableIPs, ip)
+				mu.Unlock()
+			}
+		}(ip)
+	}
+
+	wg.Wait()
+	return reachableIPs, nil
+}
+
+func ScanKUUFS() ([]string, error) {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var reachableIPs []string
+
+	for x := 1; x < 256; x++ {
+		for y := 30; y < 39; y++ {
+			ip := "10.4." + strconv.Itoa(x) + "." + strconv.Itoa(y)
 			wg.Add(1)
 
 			go func(ip string) {
 				defer wg.Done()
-				success, _, err := Ping(ip)
+				success, _, err := Ping(ip, 80) // TODO: вынести порт в перменную, спросить порт
 				if err == nil && success {
 					mu.Lock()
 					reachableIPs = append(reachableIPs, ip)
@@ -45,25 +58,61 @@ func ScanNetwork(start, end int) ([]string, error) {
 	return reachableIPs, nil
 }
 
-// Ping отправляет ICMP Echo запрос на указанный адрес и возвращает результат.
-func Ping(address string) (bool, time.Duration, error) {
-	pinger, err := ping.NewPinger(address)
+func ScanNetwork() ([]string, error) {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var allReachableIPs []string
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		gersIPs, err := ScanGERS()
+		if err == nil {
+			mu.Lock()
+			allReachableIPs = append(allReachableIPs, gersIPs...)
+			mu.Unlock()
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		kuufsIPs, err := ScanKUUFS()
+		if err == nil {
+			mu.Lock()
+			allReachableIPs = append(allReachableIPs, kuufsIPs...)
+			mu.Unlock()
+		}
+	}()
+
+	wg.Wait()
+	return allReachableIPs, nil
+}
+
+func ScanNetworkDraft() ([]string, error) {
+	reachableIPs := []string{}
+	for i := 30; i < 39; i++ {
+		reachableIPs = append(reachableIPs, "10.4.1."+strconv.Itoa(i))
+	}
+	return reachableIPs, nil
+}
+
+// Ping отправляет TCP запрос на указанный адрес и возвращает результат.
+func Ping(address string, port int) (bool, time.Duration, error) {
+	startTime := time.Now()
+
+	// Формируем адрес для подключения
+	addr := fmt.Sprintf("%s:%d", address, port)
+
+	// Пытаемся установить TCP соединение
+	conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
 	if err != nil {
-		return false, 0, fmt.Errorf("failed to create pinger: %v", err)
+		return false, 0, fmt.Errorf("failed to connect: %v", err)
 	}
+	defer conn.Close()
 
-	pinger.Count = 3
-	pinger.Timeout = 2 * time.Second
+	// Вычисляем время, затраченное на соединение
+	duration := time.Since(startTime)
 
-	err = pinger.Run()
-	if err != nil {
-		return false, 0, fmt.Errorf("failed to run pinger: %v", err)
-	}
-
-	stats := pinger.Statistics()
-	if stats.PacketsRecv > 0 {
-		return true, stats.AvgRtt, nil
-	}
-
-	return false, 0, nil
+	return true, duration, nil
 }

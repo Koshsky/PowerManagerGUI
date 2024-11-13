@@ -46,6 +46,7 @@ func Draft() string {
 
 	return info
 }
+
 func (pm *PowerManagerInfo) Str() string {
 	var info string
 
