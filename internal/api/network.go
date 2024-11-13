@@ -52,18 +52,18 @@ func Ping(address string) (bool, time.Duration, error) {
 		return false, 0, fmt.Errorf("failed to create pinger: %v", err)
 	}
 
-	pinger.Count = 3                 // Количество запросов
-	pinger.Timeout = 2 * time.Second // Таймаут на ответ
+	pinger.Count = 3
+	pinger.Timeout = 2 * time.Second
 
 	err = pinger.Run()
 	if err != nil {
 		return false, 0, fmt.Errorf("failed to run pinger: %v", err)
 	}
 
-	stats := pinger.Statistics() // Получаем статистику
+	stats := pinger.Statistics()
 	if stats.PacketsRecv > 0 {
-		return true, stats.AvgRtt, nil // Возвращаем успешный результат и среднее время ответа
+		return true, stats.AvgRtt, nil
 	}
 
-	return false, 0, nil // Если не было ответов
+	return false, 0, nil
 }

@@ -21,11 +21,16 @@ func Run() {
 
 func InitWindow(myWindow fyne.Window) {
 	tabTitle := "HUB"
-	// TODO: установить значения по умолчанию для этих ентрис
+	// TODO: установить значения по умолчанию для этих ентрис В СООТВЕТСТВИЕ С ФАКТИЧЕСКИМИМ ЗНАЧЕНИЯМИ
+	startLabel := widget.NewLabel("Minimum value of the 4th octet of the IP address")
 	startEntry := widget.NewEntry()
-	startEntry.SetPlaceHolder("Start")
+	startEntry.SetPlaceHolder("Start value")
+	startEntry.SetText("100")
+
+	endLabel := widget.NewLabel("Maximum value of the 4th octet of the IP address")
 	endEntry := widget.NewEntry()
-	endEntry.SetPlaceHolder("End")
+	endEntry.SetPlaceHolder("End value")
+	endEntry.SetText("120")
 
 	messageLabel := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 	button := widget.NewButton("SCAN NETWORK AND REFRESH", func() {
@@ -41,7 +46,12 @@ func InitWindow(myWindow fyne.Window) {
 		}
 	})
 
-	content := container.NewVBox(startEntry, endEntry, button, messageLabel)
+	content := container.NewVBox(
+		startLabel, startEntry,
+		endLabel, endEntry,
+		button,
+		messageLabel,
+	)
 	tab := container.NewTabItem(tabTitle, content)
 	tabsItems := container.NewAppTabs()
 	tabsItems.Append(tab)
@@ -51,7 +61,7 @@ func InitWindow(myWindow fyne.Window) {
 
 func RefreshTabs(myWindow fyne.Window, IPs []string) {
 	powerManagers := api.CreatePowerManagers(IPs)
-	
+
 	tabsItems := myWindow.Content().(*container.AppTabs)
 
 	for i := len(tabsItems.Items) - 1; i > 0; i-- {
