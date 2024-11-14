@@ -8,6 +8,7 @@ import (
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
+
 func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	tabTitle := p.IP
 
@@ -24,6 +25,7 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 
 func createInfoButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Button {
 	return widget.NewButton("get_info", func() {
+		log.Println("InfoButton was pressed")
 		if info, err := p.GetInfo(); err == nil {
 			textDisplay.SetText(info.Str())
 		} else {
@@ -35,6 +37,7 @@ func createInfoButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Bu
 
 func createAnalogButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Button {
 	return widget.NewButton("get_analog", func() {
+		log.Println("AnalogButton was pressed")
 		if data, err := p.GetAnalog(); err == nil {
 			textDisplay.SetText(data.Str())
 		} else {
@@ -45,7 +48,8 @@ func createAnalogButton(p *api.PowerManager, textDisplay *widget.Label) *widget.
 
 func createStatusButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Button {
 	return widget.NewButton("get_status", func() {
-		if status, err := p.GetInfo(); err == nil {
+		log.Println("StatusButton was pressed")
+		if status, err := p.GetStatus(); err == nil {
 			textDisplay.SetText(status.Str())
 		} else {
 			log.Println(err)

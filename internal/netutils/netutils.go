@@ -14,7 +14,7 @@ func ScanGERS() ([]string, error) {
 	var reachableIPs []string
 
 	for x := 1; x < 256; x++ {
-		ip := "10.4." + strconv.Itoa(x) + ".5"
+		ip := "10.3." + strconv.Itoa(x) + ".150"
 		wg.Add(1)
 
 		go func(ip string) {
@@ -38,20 +38,18 @@ func ScanKUUFS() ([]string, error) {
 	var reachableIPs []string
 
 	for x := 1; x < 256; x++ {
-		for y := 30; y < 39; y++ {
-			ip := "10.4." + strconv.Itoa(x) + "." + strconv.Itoa(y)
-			wg.Add(1)
+		ip := "10.3." + strconv.Itoa(x) + "." + "69"
+		wg.Add(1)
 
-			go func(ip string) {
-				defer wg.Done()
-				success, _, err := Ping(ip, 80) // TODO: вынести порт в перменную, спросить порт
-				if err == nil && success {
-					mu.Lock()
-					reachableIPs = append(reachableIPs, ip)
-					mu.Unlock()
-				}
-			}(ip)
-		}
+		go func(ip string) {
+			defer wg.Done()
+			success, _, err := Ping(ip, 80) // TODO: вынести порт в перменную, спросить порт
+			if err == nil && success {
+				mu.Lock()
+				reachableIPs = append(reachableIPs, ip)
+				mu.Unlock()
+			}
+		}(ip)
 	}
 
 	wg.Wait()
