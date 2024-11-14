@@ -9,7 +9,7 @@ import (
 )
 
 func ScanAndRefresh(myWindow fyne.Window) {
-	IPs, _ := netutils.ScanNetwork() // TODO: протестировать ScanNetwork, ЗАМЕНИТЬ ЗАГЛУШКУ ИМ!!!
+	IPs, _ := netutils.ScanNetwork()
 	powerManagers := api.CreatePowerManagers(IPs)
 
 	HUB := myWindow.Content().(*container.AppTabs).Items[0]

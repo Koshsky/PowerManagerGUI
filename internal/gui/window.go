@@ -17,7 +17,7 @@ func InitWindow(myWindow fyne.Window) {
 	tabsItems := container.NewAppTabs()
 	tabsItems.Append(tab)
 	myWindow.SetContent(tabsItems)
-	myWindow.Resize(fyne.NewSize(800, 600))
+	myWindow.Resize(fyne.NewSize(400, 600))
 }
 
 func createMessageLabel() *widget.Label {
