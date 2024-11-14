@@ -3,11 +3,13 @@ package gui
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
+	"github.com/Koshsky/PowerManagerGUI/internal/netutils"
 )
 
 func ScanAndRefresh(myWindow fyne.Window) {
-	IPs, _ := api.ScanNetworkDraft() // TODO: протестировать ScanNetwork, ЗАМЕНИТЬ ЗАГЛУШКУ ИМ!!!
+	IPs, _ := netutils.ScanNetworkDraft() // TODO: протестировать ScanNetwork, ЗАМЕНИТЬ ЗАГЛУШКУ ИМ!!!
 	powerManagers := api.CreatePowerManagers(IPs)
 
 	HUB := myWindow.Content().(*container.AppTabs).Items[0]

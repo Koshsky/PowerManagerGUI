@@ -1,4 +1,4 @@
-package api
+package netutils
 
 import (
 	"fmt"

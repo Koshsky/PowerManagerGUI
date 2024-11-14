@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Koshsky/PowerManagerGUI/internal/api"
+	"github.com/Koshsky/PowerManagerGUI/internal/netutils"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func testPingFunc() {
 
 	for _, ip := range popularIPs {
 		fmt.Printf("Запуск Ping на %s...\n", ip)
-		success, duration, err := api.Ping(ip, 80) // Используем порт 80 для TCP Ping
+		success, duration, err := netutils.Ping(ip, 80) // Используем порт 80 для TCP Ping
 		if err != nil {
 			log.Printf("Ошибка при выполнении Ping на %s: %v\n", ip, err)
 			continue
@@ -48,21 +48,21 @@ func testPingFunc() {
 func testScan() {
 	// Пример вызова других функций сканирования
 	fmt.Println("\nНачинаем сканирование GERS...")
-	gersIPs, err := api.ScanGERS()
+	gersIPs, err := netutils.ScanGERS()
 	if err != nil {
 		log.Fatalf("Ошибка при сканировании GERS: %v\n", err)
 	}
 	fmt.Println("Доступные IP-адреса GERS:", gersIPs)
 
 	fmt.Println("\nНачинаем сканирование KUUFS...")
-	kuufsIPs, err := api.ScanKUUFS()
+	kuufsIPs, err := netutils.ScanKUUFS()
 	if err != nil {
 		log.Fatalf("Ошибка при сканировании KUUFS: %v\n", err)
 	}
 	fmt.Println("Доступные IP-адреса KUUFS:", kuufsIPs)
 
 	fmt.Println("\nНачинаем сканирование всей сети...")
-	allIPs, err := api.ScanNetwork()
+	allIPs, err := netutils.ScanNetwork()
 	if err != nil {
 		log.Fatalf("Ошибка при сканировании сети: %v\n", err)
 	}
