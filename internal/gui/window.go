@@ -7,17 +7,21 @@ import (
 )
 
 func InitWindow(myWindow fyne.Window) {
+	tab := NewHubTab(myWindow)
+	tabsItems := container.NewAppTabs()
+	tabsItems.Append(tab)
+	myWindow.SetContent(tabsItems)
+	myWindow.Resize(fyne.NewSize(700, 500))
+}
+
+func NewHubTab(myWindow fyne.Window) *container.TabItem {
 	tabTitle := "HUB"
 
 	messageLabel := createMessageLabel()
 	button := createScanButton(myWindow)
 
 	content := container.NewVBox(button, messageLabel)
-	tab := container.NewTabItem(tabTitle, content)
-	tabsItems := container.NewAppTabs()
-	tabsItems.Append(tab)
-	myWindow.SetContent(tabsItems)
-	myWindow.Resize(fyne.NewSize(400, 600))
+	return container.NewTabItem(tabTitle, content)
 }
 
 func createMessageLabel() *widget.Label {

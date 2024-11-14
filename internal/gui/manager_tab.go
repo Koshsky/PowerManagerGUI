@@ -15,29 +15,24 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 	textDisplay.Wrapping = fyne.TextWrapWord // Установим оборачивание текста
 
-	button1 := createInfoButton(p, textDisplay)
-	button2 := createAnalogButton(p, textDisplay)
-	button3 := createStatusButton(p, textDisplay)
-
 	var changeContainer *fyne.Container
 	if p.ManagerType == "GERSManager" {
-		changeContainer = createGERSManagerChangeContainer(textDisplay)
+		changeContainer = createGERSChangeBox(textDisplay)
 	} else if p.ManagerType == "MonitorManager" {
-		changeContainer = createMonitorManagerChangeContainer(textDisplay)
+		changeContainer = createMonitorChangeBox(textDisplay)
 	}
 
 	content := container.NewVBox(
-		button1, button2, button3,
+		createInfoButton(p, textDisplay), 
+		createAnalogButton(p, textDisplay), 
+		createStatusButton(p, textDisplay),
 		changeContainer,
 	)
-
-	// Устанавливаем минимальный и максимальный размер для content
-	content.Resize(fyne.NewSize(600, 400))     // Установка начального размера
 
 	return container.NewTabItem(tabTitle, content)
 }
 
-func createMonitorManagerChangeContainer(textDisplay *widget.Label) *fyne.Container {
+func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 	radioGroup := widget.NewRadioGroup([]string{
 		"Mini PC 1",
 		"Mini PC 2",
@@ -78,12 +73,11 @@ func createMonitorManagerChangeContainer(textDisplay *widget.Label) *fyne.Contai
 
 	// Создаем и возвращаем changeContainer с ограничением по размерам
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
-	changeContainer.Resize(fyne.NewSize(500, 300))     // Установка начального размера
 
 	return changeContainer
 }
 
-func createGERSManagerChangeContainer(textDisplay *widget.Label) *fyne.Container {
+func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
 	radioGroup := widget.NewRadioGroup([]string{
 		"ALL",
 		"GERS 1",
@@ -116,9 +110,7 @@ func createGERSManagerChangeContainer(textDisplay *widget.Label) *fyne.Container
 
 	changeButtons := container.NewVBox(btnON, btnOFF, btnReset, btnHardReset)
 
-	// Создаем и возвращаем changeContainer с ограничением по размерам
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
-	changeContainer.Resize(fyne.NewSize(500, 300))   // Установка начального размера
 
 	return changeContainer
 }

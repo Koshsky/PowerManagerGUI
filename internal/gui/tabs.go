@@ -12,8 +12,9 @@ func ScanAndRefresh(myWindow fyne.Window) {
 	IPs, _ := netutils.ScanNetwork()
 	powerManagers := api.CreatePowerManagers(IPs)
 
-	HUB := myWindow.Content().(*container.AppTabs).Items[0]
-	newTabsItems := container.NewAppTabs(HUB)
+	hub := NewHubTab(myWindow)
+	newTabsItems := container.NewAppTabs()
+	newTabsItems.Append(hub)
 	for _, pm := range powerManagers {
 		newTab := NewManagerTab(pm)
 		newTabsItems.Append(newTab)
