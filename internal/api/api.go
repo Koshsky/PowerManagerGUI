@@ -24,7 +24,6 @@ func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 		return PowerManagerInfo{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	// Use io.TeeReader to log the response body to the terminal
 	tee := io.TeeReader(response.Body, os.Stdout)
 
 	var info PowerManagerInfo
@@ -50,7 +49,6 @@ func (pm *PowerManager) GetAnalog() (SensorData, error) {
 		return SensorData{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	// Используем io.TeeReader для логирования содержимого в терминал
 	tee := io.TeeReader(response.Body, os.Stdout)
 
 	var data SensorData
@@ -76,7 +74,6 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		return MonitorStatus{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	// Используем io.TeeReader для логирования содержимого в терминал
 	tee := io.TeeReader(response.Body, os.Stdout)
 
 	if pm.Type == "GERSManager" {

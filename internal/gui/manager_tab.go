@@ -13,7 +13,7 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	tabTitle := p.IP
 
 	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
-	textDisplay.Wrapping = fyne.TextWrapWord // Установим оборачивание текста
+	textDisplay.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
 
 	var changeContainer *fyne.Container
 	if p.Type == "GERSManager" {
@@ -46,7 +46,7 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 		println("Selected:", selected)
 		textDisplay.SetText("Selected: " + selected)
 	})
-	radioGroup.Horizontal = false // Вертикальное расположение
+	radioGroup.Horizontal = false
 
 	btnON := widget.NewButton("ON", func() {
 		println("ON clicked")
@@ -70,8 +70,6 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 	})
 
 	changeButtons := container.NewVBox(btnON, btnOFF, btnReset, btnTurnON, btnTurnOFF)
-
-	// Создаем и возвращаем changeContainer с ограничением по размерам
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 
 	return changeContainer
@@ -89,7 +87,7 @@ func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
 		println("Selected:", selected)
 		textDisplay.SetText("Selected: " + selected)
 	})
-	radioGroup.Horizontal = false // Вертикальное расположение
+	radioGroup.Horizontal = false
 
 	btnON := widget.NewButton("ON", func() {
 		println("ON clicked")
