@@ -79,20 +79,20 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 	// Используем io.TeeReader для логирования содержимого в терминал
 	tee := io.TeeReader(response.Body, os.Stdout)
 
-	if pm.ManagerType == "GERSManager" {
+	if pm.Type == "GERSManager" {
 		var status GERSStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return GERSStatus{}, err
 		}
 		return status, nil
-	} else if pm.ManagerType == "MonitorManager" {
+	} else if pm.Type == "MonitorManager" {
 		var status MonitorStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return MonitorStatus{}, err
 		}
 		return status, nil
 	} else {
-		return MonitorStatus{}, nil
+		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + pm.Type)
 	}
 }
 

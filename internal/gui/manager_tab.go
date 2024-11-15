@@ -16,9 +16,9 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	textDisplay.Wrapping = fyne.TextWrapWord // Установим оборачивание текста
 
 	var changeContainer *fyne.Container
-	if p.ManagerType == "GERSManager" {
+	if p.Type == "GERSManager" {
 		changeContainer = createGERSChangeBox(textDisplay)
-	} else if p.ManagerType == "MonitorManager" {
+	} else if p.Type == "MonitorManager" {
 		changeContainer = createMonitorChangeBox(textDisplay)
 	}
 
