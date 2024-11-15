@@ -120,7 +120,6 @@ func createInfoButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Bu
 		if info, err := p.GetInfo(); err == nil {
 			textDisplay.SetText(info.Str())
 		} else {
-			textDisplay.SetText(api.Draft())
 			log.Println(err)
 		}
 	})

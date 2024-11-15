@@ -35,8 +35,7 @@ func ScanNetwork() ([]string, error) {
 	}()
 
 	wg.Wait()
-	// return allReachableIPs, nil  // TODO: не забудь исправить это при тестировании у стенда
-	return []string{"10.3.1.69", "10.3.1.150"}, nil
+	return allReachableIPs, nil
 }
 
 func scanGERSManagers() ([]string, error) {

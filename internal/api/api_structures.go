@@ -18,7 +18,7 @@ type SensorData struct {
 	Voltage5V   string `json:"5 VDC"`       // Напряжение на линии 5 VDC
 }
 
-type DeviceStatus struct {
+type MonitorStatus struct {
 	MiniPCGroup1Status   string `json:"[status] Mini PC group 1"`
 	MiniPCGroup2Status   string `json:"[status] Mini PC group 2"`
 	MonitorStatus        string `json:"[status] Monitor 220 VAC"`
@@ -32,22 +32,32 @@ type DeviceStatus struct {
 	Reserved2Relay       string `json:"[relay] Reserved 2"`
 }
 
-func Draft() string {
+type GERSStatus struct {
+	GERS1Status string `json:"GERS 1"`
+	GERS2Status string `json:"GERS 2"`
+	GERS3Status string `json:"GERS 3"`
+	GERS4Status string `json:"GERS 4"`
+	GERS5Status string `json:"GERS 5"`
+}
+
+type JSONStringer interface {
+	Str() string
+}
+
+func (g GERSStatus) Str() string {
 	var info string
 
-	info += "Power Manager Information:\n"
-	info += fmt.Sprintf("IP Address: %s\n", "1")
-	info += fmt.Sprintf("Subnet Mask: %s\n", "2")
-	info += fmt.Sprintf("Gateway: %s\n", "3")
-	info += fmt.Sprintf("Status: %s\n", "4")
-	info += fmt.Sprintf("Load: %d\n", 5)
-	info += fmt.Sprintf("Uptime: %d seconds\n", 6)
-	info += fmt.Sprintf("Version: %s\n", "7")
+	info += "GERS Status Information:\n"
+	info += fmt.Sprintf("GERS 1 Status: %s\n", g.GERS1Status)
+	info += fmt.Sprintf("GERS 2 Status: %s\n", g.GERS2Status)
+	info += fmt.Sprintf("GERS 3 Status: %s\n", g.GERS3Status)
+	info += fmt.Sprintf("GERS 4 Status: %s\n", g.GERS4Status)
+	info += fmt.Sprintf("GERS 5 Status: %s\n", g.GERS5Status)
 
 	return info
 }
 
-func (pm *PowerManagerInfo) Str() string {
+func (pm PowerManagerInfo) Str() string {
 	var info string
 
 	info += "Power Manager Information:\n"
@@ -62,7 +72,7 @@ func (pm *PowerManagerInfo) Str() string {
 	return info
 }
 
-func (sd *SensorData) Str() string {
+func (sd SensorData) Str() string {
 	var info string
 
 	info += "Sensor Data Information:\n"
@@ -73,7 +83,7 @@ func (sd *SensorData) Str() string {
 	return info
 }
 
-func (ds *DeviceStatus) Str() string {
+func (ds MonitorStatus) Str() string {
 	var info string
 
 	info += "Device Status Information:\n"

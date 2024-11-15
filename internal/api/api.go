@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
@@ -23,8 +24,11 @@ func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 		return PowerManagerInfo{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
+	// Use io.TeeReader to log the response body to the terminal
+	tee := io.TeeReader(response.Body, os.Stdout)
+
 	var info PowerManagerInfo
-	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
+	if err := json.NewDecoder(tee).Decode(&info); err != nil {
 		return PowerManagerInfo{}, err
 	}
 
@@ -46,33 +50,50 @@ func (pm *PowerManager) GetAnalog() (SensorData, error) {
 		return SensorData{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
+	// Используем io.TeeReader для логирования содержимого в терминал
+	tee := io.TeeReader(response.Body, os.Stdout)
+
 	var data SensorData
-	if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
+	if err := json.NewDecoder(tee).Decode(&data); err != nil {
 		return SensorData{}, err
 	}
+
 	return data, nil
 }
 
-func (pm *PowerManager) GetStatus() (DeviceStatus, error) {
+func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 	url := fmt.Sprintf("http://%s/get_status.json", pm.IP)
 	response, err := http.Get(url)
 	if err != nil {
-		return DeviceStatus{}, err
+		return MonitorStatus{}, err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return DeviceStatus{}, fmt.Errorf("failed to get status: %s", response.Status)
+		return MonitorStatus{}, fmt.Errorf("failed to get status: %s", response.Status)
 	}
 	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
-		return DeviceStatus{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
+		return MonitorStatus{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	var status DeviceStatus
-	if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
-		return DeviceStatus{}, err
+	// Используем io.TeeReader для логирования содержимого в терминал
+	tee := io.TeeReader(response.Body, os.Stdout)
+
+	if pm.ManagerType == "GERSManager" {
+		var status GERSStatus
+		if err := json.NewDecoder(tee).Decode(&status); err != nil {
+			return GERSStatus{}, err
+		}
+		return status, nil
+	} else if pm.ManagerType == "MonitorManager" {
+		var status MonitorStatus
+		if err := json.NewDecoder(tee).Decode(&status); err != nil {
+			return MonitorStatus{}, err
+		}
+		return status, nil
+	} else {
+		return MonitorStatus{}, nil
 	}
-	return status, nil
 }
 
 type Command struct {

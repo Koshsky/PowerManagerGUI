@@ -2,6 +2,7 @@ package netutils
 
 import (
 	"slices"
+	"strconv"
 )
 
 func GetManagerTypeByIP(ip string) string {
@@ -14,23 +15,21 @@ func GetManagerTypeByIP(ip string) string {
 }
 
 func obtainPossibleIPsForMonitorManager() []string {
-	// possibleIPs := []string{}
-	// for OR := 1; OR < 256; OR++ {
-	// 	for i := 30; i <= 39; i++ {
-	// 		possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+"."+strconv.Itoa(i))
-	// 	}
-	// }
-	// return possibleIPs  // TODO: когда согласует карту сети изменить это поведение
-	return []string{"10.3.1.69"}
+	possibleIPs := []string{}
+	for OR := 1; OR < 256; OR++ {
+		for i := 30; i <= 39; i++ {
+			possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+"."+strconv.Itoa(i))
+		}
+	}
+	return possibleIPs
 }
 
 func obtainPossibleIPsForGERSManager() []string {
-	// possibleIPs := []string{}
-	// for OR := 1; OR < 256; OR++ {
-	// 	possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+".5")
-	// }
-	// return possibleIPs  // TODO: когда согласует карту сети изменить это поведение
-	return []string{"10.3.1.150"}
+	possibleIPs := []string{}
+	for OR := 1; OR < 256; OR++ {
+		possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+".5")
+	}
+	return possibleIPs
 }
 
 func isMonitorManager(ip string) bool {
