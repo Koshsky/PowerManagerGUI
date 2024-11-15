@@ -23,8 +23,8 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 	}
 
 	content := container.NewVBox(
-		createInfoButton(p, textDisplay), 
-		createAnalogButton(p, textDisplay), 
+		createInfoButton(p, textDisplay),
+		createAnalogButton(p, textDisplay),
 		createStatusButton(p, textDisplay),
 		changeContainer,
 	)
@@ -138,7 +138,7 @@ func createAnalogButton(p *api.PowerManager, textDisplay *widget.Label) *widget.
 
 func createStatusButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Button {
 	return widget.NewButton("get_status", func() {
-		if status, err := p.GetInfo(); err == nil {
+		if status, err := p.GetStatus(); err == nil {
 			textDisplay.SetText(status.Str())
 		} else {
 			log.Println(err)
