@@ -3,13 +3,16 @@ package api
 import "fmt"
 
 type PowerManagerInfo struct {
-	IP      string `json:"ip"`
-	Mask    string `json:"mask"`
-	Gateway string `json:"gateway"`
-	Status  string `json:"status"`  // Например, статус устройства (включено/выключено)
-	Load    int    `json:"load"`    // Нагрузка устройства в процентах
-	Uptime  int    `json:"uptime"`  // Время работы устройства в секундах
-	Version string `json:"version"` // Версия прошивки или ПО устройства
+	Type              string `json:"type"`               // Тип устройства
+	Name              string `json:"name"`               // Описание (макс. 35 символов)
+	IP                string `json:"ip"`                 // IP-адрес устройства
+	Mask              string `json:"mask"`               // Маска подсети
+	Gateway           string `json:"gateway"`            // Шлюз
+	MAC               string `json:"mac"`                // MAC-адрес
+	PHYAutonegotation string `json:"phy_autonegotation"` // Автонастройка PHY
+	PHYLinkMode       string `json:"phy_link_mode"`      // Режим соединения PHY
+	PHYLinkSpeed      string `json:"phy_link_speed"`     // Скорость соединения PHY
+	Version           string `json:"version"`            // Версия прошивки или ПО устройства
 }
 
 type SensorData struct {
@@ -61,12 +64,15 @@ func (pm PowerManagerInfo) Str() string {
 	var info string
 
 	info += "Power Manager Information:\n"
+	info += fmt.Sprintf("Type: %s\n", pm.Type)
+	info += fmt.Sprintf("Name: %s\n", pm.Name)
 	info += fmt.Sprintf("IP Address: %s\n", pm.IP)
 	info += fmt.Sprintf("Subnet Mask: %s\n", pm.Mask)
 	info += fmt.Sprintf("Gateway: %s\n", pm.Gateway)
-	info += fmt.Sprintf("Status: %s\n", pm.Status)
-	info += fmt.Sprintf("Load: %d%%\n", pm.Load)
-	info += fmt.Sprintf("Uptime: %d seconds\n", pm.Uptime)
+	info += fmt.Sprintf("MAC Address: %s\n", pm.MAC)
+	info += fmt.Sprintf("PHY Autonegotation: %s\n", pm.PHYAutonegotation)
+	info += fmt.Sprintf("PHY Link Mode: %s\n", pm.PHYLinkMode)
+	info += fmt.Sprintf("PHY Link Speed: %s\n", pm.PHYLinkSpeed)
 	info += fmt.Sprintf("Version: %s\n", pm.Version)
 
 	return info
