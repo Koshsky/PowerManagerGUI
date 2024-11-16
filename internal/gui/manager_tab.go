@@ -1,33 +1,32 @@
 package gui
 
 import (
-	"log"
-
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
-func NewManagerTab(p *api.PowerManager) (*container.TabItem, error) {
-	tabTitle := p.IP
+func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
+	tabTitle := pm.IP
 
-	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
-	textDisplay.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
+	MessageLabel := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
+	MessageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
 
 	var changeContainer *fyne.Container
-	if info, err := p.GetInfo(); err != nil {
+	if info, err := pm.GetInfo(); err != nil {
 		return nil, err
 	} else if info.Type == "GERS control" {
-		changeContainer = createGERSChangeBox(textDisplay)
+		changeContainer = createGERSChangeBox(MessageLabel)
 	} else if info.Type == "Monitor assembly (3.0V)" {
-		changeContainer = createMonitorChangeBox(textDisplay)
+		changeContainer = createMonitorChangeBox(MessageLabel)
 	}
 
 	content := container.NewVBox(
-		createInfoButton(p, textDisplay),
-		createAnalogButton(p, textDisplay),
-		createStatusButton(p, textDisplay),
+		createInfoButton(pm, MessageLabel),
+		createAnalogButton(pm, MessageLabel),
+		createStatusButton(pm, MessageLabel),
 		changeContainer,
 	)
 
@@ -80,7 +79,7 @@ func createPatchButtons(textDisplay *widget.Label, radioGroup *widget.RadioGroup
 
 	for i, text := range texts {
 		btn := widget.NewButton(text, func(text string, rg *widget.RadioGroup) func() {
-			return func() {
+			return func() { // TODO: изменить поведение этой функции
 				selected := rg.Selected
 				println(text + " clicked, RadioGroup selected: " + selected)
 				textDisplay.SetText(text + " clicked, RadioGroup selected: " + selected)
@@ -97,7 +96,7 @@ func createInfoButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Bu
 		if info, err := p.GetInfo(); err == nil {
 			textDisplay.SetText(info.Str())
 		} else {
-			log.Println(err)
+			textDisplay.SetText(err.Error())
 		}
 	})
 }
@@ -107,7 +106,7 @@ func createAnalogButton(p *api.PowerManager, textDisplay *widget.Label) *widget.
 		if data, err := p.GetAnalog(); err == nil {
 			textDisplay.SetText(data.Str())
 		} else {
-			log.Println(err)
+			textDisplay.SetText(err.Error())
 		}
 	})
 }
@@ -117,7 +116,7 @@ func createStatusButton(p *api.PowerManager, textDisplay *widget.Label) *widget.
 		if status, err := p.GetStatus(); err == nil {
 			textDisplay.SetText(status.Str())
 		} else {
-			log.Println(err)
+			textDisplay.SetText(err.Error())
 		}
 	})
 }

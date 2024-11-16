@@ -96,7 +96,6 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 func (pm *PowerManager) ChangeState(data map[string]string) (string, error) {
 	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
 
-	// Сериализация входных данных в JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		msg := fmt.Sprintf("JSON encoding error: %v", err)

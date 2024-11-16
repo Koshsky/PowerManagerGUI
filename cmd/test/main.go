@@ -1,56 +1,54 @@
 package main
 
 import (
-	"log"
+	"time"
 
+	"fyne.io/fyne"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Radio Group Example")
+	myWindow := myApp.NewWindow("Loading Indicator Example")
 
-	// Создаем переменную для хранения выбранного элемента
-	selected := "Mini PC 1"
+	// Создаем прогресс бар
+	progressBar := widget.NewProgressBar()
+	progressBar.SetValue(0)
 
-	radioGroup := widget.NewRadioGroup([]string{
-		"Mini PC 1",
-		"Mini PC 2",
-		"Converter 1",
-		"Converter 2",
-		"Monitor",
-		"Common Power",
-		"Reserved 1",
-		"Reserved 2",
-	}, func(selectedValue string) {
-		log.Println("Selected:", selectedValue)
-		if selectedValue != "" {
-			selected = selectedValue
-		}
+	// Кнопка для запуска сетевой операции
+	startButton := widget.NewButton("Start Network Operation", func() {
+		// Блокируем кнопку во время загрузки
+		startButton.Disable()
+
+		// Запуск сетевой операции в отдельной горутине
+		go func(startButton *widget.Button) {
+			// Симуляция сетевой операции
+			for i := 0; i <= 100; i++ {
+				// Обновляем прогресс бар
+				progressBar.SetValue(float64(i) / 100)
+				time.Sleep(50 * time.Millisecond) // Симуляция задержки
+			}
+
+			// Завершение операции
+			startButton.Enable()    // Разблокируем кнопку
+			progressBar.SetValue(0) // Сбрасываем прогресс бар
+
+			// Обновляем интерфейс (например, показываем сообщение)
+			myWindow.SetContent(container.NewVBox(
+				widget.NewLabel("Network operation completed!"),
+				startButton,
+			))
+		}(startButton)
 	})
-	radioGroup.Required = true
-	// Установка первой кнопки как выбранной по умолчанию
-	radioGroup.SetSelected(selected)
 
-	// Создаем CheckBox, который будет использоваться для фиксации выбора
-	fixCheckBox := widget.NewCheck("Fix selection", func(checked bool) {
-		if !checked {
-			// Если CheckBox не отмечен, возвращаем предыдущий выбор
-			radioGroup.SetSelected(selected)
-		}
-	})
-
-	// Добавляем обработчик для RadioGroup
-	radioGroup.OnChanged = func(value string) {
-		if value != "" {
-			selected = value
-		}
-	}
-
-	// Создаем контейнер и добавляем элементы
-	content := container.NewVBox(radioGroup, fixCheckBox)
-	myWindow.SetContent(content)
+	myWindow.SetContent(container.NewVBox(
+		startButton,
+		layout.NewSpacer(),
+		progressBar,
+	))
+	myWindow.Resize(fyne.NewSize(300, 200))
 	myWindow.ShowAndRun()
 }

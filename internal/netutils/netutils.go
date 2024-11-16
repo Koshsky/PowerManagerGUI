@@ -3,47 +3,63 @@ package netutils
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
 
-func ScanNetwork() ([]string, error) {
+func IsValidOctet(input string) bool {
+	octet, err := strconv.Atoi(input)
+	if err != nil {
+		return false
+	}
+	return octet >= 1 && octet <= 255
+}
+
+func ScanNetwork(operatingRoom string) ([]string, error) {
+	if !IsValidOctet(operatingRoom) {
+		return []string{}, fmt.Errorf("ScanNetwork: incorrect operating room numbe[1-255]: " + operatingRoom)
+	}
+
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var allReachableIPs []string
+
+	roomNum, err := strconv.Atoi(operatingRoom)
+	if err != nil {
+		return allReachableIPs, fmt.Errorf("ScanNetwork: %w", err)
+	} else if roomNum < 1 || roomNum > 255 {
+		return allReachableIPs, fmt.Errorf("ScanNetwork: the operating room number is outside the range 1-255")
+	}
 
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
-		gersIPs, err := scanGERSManagers()
-		if err == nil {
-			mu.Lock()
-			allReachableIPs = append(allReachableIPs, gersIPs...)
-			mu.Unlock()
-		}
+		gersIPs, _ := scanGERSManagers(operatingRoom)
+		mu.Lock()
+		allReachableIPs = append(allReachableIPs, gersIPs...)
+		mu.Unlock()
 	}()
 
 	go func() {
 		defer wg.Done()
-		kuufsIPs, err := scanMonitorManagers()
-		if err == nil {
-			mu.Lock()
-			allReachableIPs = append(allReachableIPs, kuufsIPs...)
-			mu.Unlock()
-		}
+		kuufsIPs, _ := scanMonitorManagers(operatingRoom)
+		mu.Lock()
+		allReachableIPs = append(allReachableIPs, kuufsIPs...)
+		mu.Unlock()
 	}()
 
 	wg.Wait()
 	return allReachableIPs, nil
 }
 
-func scanGERSManagers() ([]string, error) {
+func scanGERSManagers(operatingRoom string) ([]string, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var reachableIPs []string
 
-	for _, ip := range obtainPossibleIPsForGERSManager() {
+	for _, ip := range obtainPossibleIPsForGERSManager(operatingRoom) {
 		wg.Add(1)
 
 		go func(ip string) {
@@ -61,12 +77,12 @@ func scanGERSManagers() ([]string, error) {
 	return reachableIPs, nil
 }
 
-func scanMonitorManagers() ([]string, error) {
+func scanMonitorManagers(operatingRoom string) ([]string, error) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var reachableIPs []string
 
-	for _, ip := range obtainPossibleIPsForMonitorManager() {
+	for _, ip := range obtainPossibleIPsForMonitorManager(operatingRoom) {
 		wg.Add(1)
 
 		go func(ip string) {

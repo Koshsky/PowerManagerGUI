@@ -1,23 +1,32 @@
 package netutils
 
 import (
+	"fmt"
 	"strconv"
 )
 
-func obtainPossibleIPsForMonitorManager() []string {
+func obtainPossibleIPsForMonitorManager(operatingRoom string) []string {
 	possibleIPs := []string{}
-	for OR := 1; OR < 256; OR++ {
-		for i := 30; i <= 39; i++ {
-			possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+"."+strconv.Itoa(i))
-		}
+
+	roomNum, err := strconv.Atoi(operatingRoom)
+	if err != nil || roomNum < 1 || roomNum > 255 {
+		return possibleIPs
+	}
+
+	for i := 30; i <= 39; i++ {
+		possibleIPs = append(possibleIPs, fmt.Sprintf("10.4.%d.%d", roomNum, i))
 	}
 	return possibleIPs
 }
 
-func obtainPossibleIPsForGERSManager() []string {
+func obtainPossibleIPsForGERSManager(operatingRoom string) []string {
 	possibleIPs := []string{}
-	for OR := 1; OR < 256; OR++ {
-		possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+".5")
+
+	roomNum, err := strconv.Atoi(operatingRoom)
+	if err != nil || roomNum < 1 || roomNum > 255 {
+		return possibleIPs
 	}
+	
+	possibleIPs = append(possibleIPs, fmt.Sprintf("10.4.%d.5", roomNum))
 	return possibleIPs
 }
