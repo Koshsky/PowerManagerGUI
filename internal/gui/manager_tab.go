@@ -35,7 +35,7 @@ func NewManagerTab(p *api.PowerManager) (*container.TabItem, error) {
 }
 
 func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
-	radioGroup := widget.NewRadioGroup([]string{
+	radioGroup := createPatchRadio(
 		"Mini PC 1",
 		"Mini PC 2",
 		"Converter 1",
@@ -44,17 +44,35 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 		"Common Power",
 		"Reserved 1",
 		"Reserved 2",
-	}, func(selected string) {
-		log.Println("Selected:", selected)
-		textDisplay.SetText("Selected: " + selected)
-	})
-	radioGroup.SetSelected("Mini PC 1")
-	radioGroup.Horizontal = false
+	)
 
 	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "Turn ON", "Turn OFF")
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 
 	return changeContainer
+}
+
+func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
+	radioGroup := createPatchRadio(
+		"ALL",
+		"GERS 1",
+		"GERS 2",
+		"GERS 3",
+		"GERS 4",
+		"GERS 5",
+	)
+	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")
+	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
+
+	return changeContainer
+}
+
+func createPatchRadio(texts ...string) *widget.RadioGroup {
+	radioGroup := widget.NewRadioGroup(texts, func(selected string) {})
+	radioGroup.SetSelected(texts[0])
+	radioGroup.Required = true
+	radioGroup.Horizontal = false
+	return radioGroup
 }
 
 func createPatchButtons(textDisplay *widget.Label, radioGroup *widget.RadioGroup, texts ...string) *fyne.Container {
@@ -72,29 +90,6 @@ func createPatchButtons(textDisplay *widget.Label, radioGroup *widget.RadioGroup
 	}
 
 	return container.NewVBox(buttons...)
-}
-
-func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
-	radioGroup := widget.NewRadioGroup([]string{
-		"ALL",
-		"GERS 1",
-		"GERS 2",
-		"GERS 3",
-		"GERS 4",
-		"GERS 5",
-	}, func(selected string) {
-		println("Selected:", selected)
-		textDisplay.SetText("Selected: " + selected)
-	})
-	radioGroup.SetSelected("ALL")
-	radioGroup.Required = true
-	radioGroup.Horizontal = false
-
-	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")
-
-	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
-
-	return changeContainer
 }
 
 func createInfoButton(p *api.PowerManager, textDisplay *widget.Label) *widget.Button {
