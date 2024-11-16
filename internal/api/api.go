@@ -76,37 +76,28 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 
 	tee := io.TeeReader(response.Body, os.Stdout)
 
-	if pm.Type == "GERSManager" {
+	if info, _ := pm.GetInfo(); info.Type == "GERS control" {
 		var status GERSStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return GERSStatus{}, err
 		}
 		return status, nil
-	} else if pm.Type == "MonitorManager" {
+	} else if info.Type == "Monitor assembly (3.0V)" {
 		var status MonitorStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return MonitorStatus{}, err
 		}
 		return status, nil
 	} else {
-		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + pm.Type)
+		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + info.Type)
 	}
 }
 
-type Command struct {
-	Device string `json:"Device"`
-	State  string `json:"state"`
-}
-
-func (pm *PowerManager) ChangeDeviceState(device string, command string) (string, error) {
+func (pm *PowerManager) ChangeDeviceState(data map[string]string) (string, error) {
 	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
 
-	cmd := Command{
-		Device: device,
-		State:  command,
-	}
-
-	jsonData, err := json.Marshal(cmd)
+	// Сериализация входных данных в JSON
+	jsonData, err := json.Marshal(data)
 	if err != nil {
 		msg := fmt.Sprintf("JSON encoding error: %v", err)
 		return msg, fmt.Errorf(msg)

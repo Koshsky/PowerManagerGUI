@@ -9,16 +9,18 @@ import (
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
-func NewManagerTab(p *api.PowerManager) *container.TabItem {
+func NewManagerTab(p *api.PowerManager) (*container.TabItem, error) {
 	tabTitle := p.IP
 
 	textDisplay := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 	textDisplay.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
 
 	var changeContainer *fyne.Container
-	if p.Type == "GERSManager" {
+	if info, err := p.GetInfo(); err != nil {
+		return nil, err
+	} else if info.Type == "GERS control" {
 		changeContainer = createGERSChangeBox(textDisplay)
-	} else if p.Type == "MonitorManager" {
+	} else if info.Type == "Monitor assembly (3.0V)" {
 		changeContainer = createMonitorChangeBox(textDisplay)
 	}
 
@@ -29,7 +31,7 @@ func NewManagerTab(p *api.PowerManager) *container.TabItem {
 		changeContainer,
 	)
 
-	return container.NewTabItem(tabTitle, content)
+	return container.NewTabItem(tabTitle, content), nil
 }
 
 func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
@@ -43,36 +45,32 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 		"Reserved 1",
 		"Reserved 2",
 	}, func(selected string) {
-		println("Selected:", selected)
+		log.Println("Selected:", selected)
 		textDisplay.SetText("Selected: " + selected)
 	})
 	radioGroup.Horizontal = false
 
-	btnON := widget.NewButton("ON", func() {
-		println("ON clicked")
-		textDisplay.SetText("ON clicked")
-	})
-	btnOFF := widget.NewButton("OFF", func() {
-		println("OFF clicked")
-		textDisplay.SetText("OFF clicked")
-	})
-	btnReset := widget.NewButton("Reset", func() {
-		println("Reset clicked")
-		textDisplay.SetText("Reset clicked")
-	})
-	btnTurnON := widget.NewButton("Turn ON", func() {
-		println("Turn ON clicked")
-		textDisplay.SetText("Turn ON clicked")
-	})
-	btnTurnOFF := widget.NewButton("Turn OFF", func() {
-		println("Turn OFF clicked")
-		textDisplay.SetText("Turn OFF clicked")
-	})
-
-	changeButtons := container.NewVBox(btnON, btnOFF, btnReset, btnTurnON, btnTurnOFF)
+	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "Turn ON", "Turn OFF")
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 
 	return changeContainer
+}
+
+func createPatchButtons(textDisplay *widget.Label, radioGroup *widget.RadioGroup, texts ...string) *fyne.Container {
+	buttons := make([]fyne.CanvasObject, len(texts))
+
+	for i, text := range texts {
+		btn := widget.NewButton(text, func(text string, rg *widget.RadioGroup) func() {
+			return func() {
+				selected := rg.Selected
+				println(text + " clicked, RadioGroup selected: " + selected)
+				textDisplay.SetText(text + " clicked, RadioGroup selected: " + selected)
+			}
+		}(text, radioGroup))
+		buttons[i] = btn
+	}
+
+	return container.NewVBox(buttons...)
 }
 
 func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
@@ -89,24 +87,7 @@ func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
 	})
 	radioGroup.Horizontal = false
 
-	btnON := widget.NewButton("ON", func() {
-		println("ON clicked")
-		textDisplay.SetText("ON clicked")
-	})
-	btnOFF := widget.NewButton("OFF", func() {
-		println("OFF clicked")
-		textDisplay.SetText("OFF clicked")
-	})
-	btnReset := widget.NewButton("Reset", func() {
-		println("Reset clicked")
-		textDisplay.SetText("Reset clicked")
-	})
-	btnHardReset := widget.NewButton("HardReset", func() {
-		println("HardReset clicked")
-		textDisplay.SetText("HardReset clicked")
-	})
-
-	changeButtons := container.NewVBox(btnON, btnOFF, btnReset, btnHardReset)
+	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")
 
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 

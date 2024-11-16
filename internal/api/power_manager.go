@@ -1,25 +1,21 @@
 package api
 
-import (
-	"github.com/Koshsky/PowerManagerGUI/internal/netutils"
-)
-
 const (
 	MASK    = "255.255.255.0"
 	GATEWAY = "192.168.66.1"
 )
 
 type PowerManager struct {
+	// TODO: узнать какие параметры НЕ нужны для апи общения
 	IP       string `json:"ip"`
 	Mask     string `json:"mask"`
 	Gateway  string `json:"gateway"`
 	Login    string `json:"login"`    // admin
 	Password string `json:"password"` // usermvs
-	Type     string `json:"type"`
 }
 
 func NewPowerManager(ip string) *PowerManager {
-	return &PowerManager{IP: ip, Type: netutils.GetManagerTypeByIP(ip)}
+	return &PowerManager{IP: ip}
 }
 
 func CreatePowerManagers(IPs []string) []*PowerManager {

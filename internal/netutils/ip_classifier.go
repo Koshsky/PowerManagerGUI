@@ -1,18 +1,8 @@
 package netutils
 
 import (
-	"slices"
 	"strconv"
 )
-
-func GetManagerTypeByIP(ip string) string {
-	if isGERSManager(ip) {
-		return "GERSManager"
-	} else if isMonitorManager(ip) {
-		return "MonitorManager"
-	}
-	return "Unknown"
-}
 
 func obtainPossibleIPsForMonitorManager() []string {
 	possibleIPs := []string{}
@@ -30,12 +20,4 @@ func obtainPossibleIPsForGERSManager() []string {
 		possibleIPs = append(possibleIPs, "10.4."+strconv.Itoa(OR)+".5")
 	}
 	return possibleIPs
-}
-
-func isMonitorManager(ip string) bool {
-	return slices.Contains(obtainPossibleIPsForMonitorManager(), ip)
-}
-
-func isGERSManager(ip string) bool {
-	return slices.Contains(obtainPossibleIPsForGERSManager(), ip)
 }
