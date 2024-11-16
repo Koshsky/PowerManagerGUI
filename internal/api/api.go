@@ -93,7 +93,7 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 	}
 }
 
-func (pm *PowerManager) ChangeDeviceState(data map[string]string) (string, error) {
+func (pm *PowerManager) ChangeState(data map[string]string) (string, error) {
 	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
 
 	// Сериализация входных данных в JSON
