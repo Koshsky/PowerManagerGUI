@@ -1,32 +1,56 @@
 package main
 
 import (
-	fyne "fyne.io/fyne/v2"
+	"log"
+
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Equal Width Elements")
+	myWindow := myApp.NewWindow("Radio Group Example")
 
-	// Создаем элементы
-	textDisplay := widget.NewLabel("Text Display")
-	radioGroup := widget.NewRadioGroup([]string{"Option 1", "Option 2", "Option 3"}, func(selected string) {
-		println("Selected:", selected)
+	// Создаем переменную для хранения выбранного элемента
+	selected := "Mini PC 1"
+
+	radioGroup := widget.NewRadioGroup([]string{
+		"Mini PC 1",
+		"Mini PC 2",
+		"Converter 1",
+		"Converter 2",
+		"Monitor",
+		"Common Power",
+		"Reserved 1",
+		"Reserved 2",
+	}, func(selectedValue string) {
+		log.Println("Selected:", selectedValue)
+		if selectedValue != "" {
+			selected = selectedValue
+		}
 	})
-	buttonContainer := container.NewVBox(
-		widget.NewButton("Button 1", func() { println("Button 1 clicked") }),
-		widget.NewButton("Button 2", func() { println("Button 2 clicked") }),
-	)
+	radioGroup.Required = true
+	// Установка первой кнопки как выбранной по умолчанию
+	radioGroup.SetSelected(selected)
 
-	// Создаем контейнер с равными ширинами
-	SomeContainer := container.New(layout.NewGridLayout(3), textDisplay, radioGroup, buttonContainer)
+	// Создаем CheckBox, который будет использоваться для фиксации выбора
+	fixCheckBox := widget.NewCheck("Fix selection", func(checked bool) {
+		if !checked {
+			// Если CheckBox не отмечен, возвращаем предыдущий выбор
+			radioGroup.SetSelected(selected)
+		}
+	})
 
-	// Устанавливаем контейнер как содержимое окна
-	myWindow.SetContent(SomeContainer)
-	myWindow.Resize(fyne.NewSize(600, 200)) // Устанавливаем размер окна
-	myWindow.ShowAndRun()                    // Запускаем приложение
+	// Добавляем обработчик для RadioGroup
+	radioGroup.OnChanged = func(value string) {
+		if value != "" {
+			selected = value
+		}
+	}
+
+	// Создаем контейнер и добавляем элементы
+	content := container.NewVBox(radioGroup, fixCheckBox)
+	myWindow.SetContent(content)
+	myWindow.ShowAndRun()
 }

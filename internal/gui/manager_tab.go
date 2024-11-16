@@ -48,6 +48,7 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 		log.Println("Selected:", selected)
 		textDisplay.SetText("Selected: " + selected)
 	})
+	radioGroup.SetSelected("Mini PC 1")
 	radioGroup.Horizontal = false
 
 	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "Turn ON", "Turn OFF")
@@ -85,6 +86,8 @@ func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
 		println("Selected:", selected)
 		textDisplay.SetText("Selected: " + selected)
 	})
+	radioGroup.SetSelected("ALL")
+	radioGroup.Required = true
 	radioGroup.Horizontal = false
 
 	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")

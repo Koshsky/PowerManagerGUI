@@ -6,7 +6,8 @@ const (
 )
 
 type PowerManager struct {
-	// TODO: узнать какие параметры НЕ нужны для апи общения
+	// TODO: узнать какие параметры НУЖНЫ для апи общения
+	// сейчас мне кажется что достаточно только IP. даже логин и пароль избыточен...
 	IP       string `json:"ip"`
 	Mask     string `json:"mask"`
 	Gateway  string `json:"gateway"`
