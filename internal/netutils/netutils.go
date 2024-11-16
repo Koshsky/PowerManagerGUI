@@ -18,7 +18,7 @@ func IsValidOctet(input string) bool {
 
 func ScanNetwork(operatingRoom string) ([]string, error) {
 	if !IsValidOctet(operatingRoom) {
-		return []string{}, fmt.Errorf("ScanNetwork: incorrect operating room numbe[1-255]: " + operatingRoom)
+		return []string{}, fmt.Errorf("ScanNetwork: incorrect operating room number [1-255]: " + operatingRoom)
 	}
 
 	var wg sync.WaitGroup

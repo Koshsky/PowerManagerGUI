@@ -18,9 +18,9 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	if info, err := pm.GetInfo(); err != nil {
 		return nil, err
 	} else if info.Type == "GERS control" {
-		changeContainer = createGERSChangeBox(MessageLabel)
+		changeContainer = createGERSChangeBox(pm, MessageLabel)
 	} else if info.Type == "Monitor assembly (3.0V)" {
-		changeContainer = createMonitorChangeBox(MessageLabel)
+		changeContainer = createMonitorChangeBox(pm, MessageLabel)
 	}
 
 	content := container.NewVBox(
@@ -33,7 +33,7 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	return container.NewTabItem(tabTitle, content), nil
 }
 
-func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
+func createMonitorChangeBox(p *api.PowerManager, textDisplay *widget.Label) *fyne.Container {
 	radioGroup := createPatchRadio(
 		"Mini PC 1",
 		"Mini PC 2",
@@ -45,13 +45,13 @@ func createMonitorChangeBox(textDisplay *widget.Label) *fyne.Container {
 		"Reserved 2",
 	)
 
-	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "Turn ON", "Turn OFF")
+	changeButtons := createPatchButtons(p, textDisplay, radioGroup, "ON", "OFF", "Reset", "Turn ON", "Turn OFF")
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 
 	return changeContainer
 }
 
-func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
+func createGERSChangeBox(p *api.PowerManager, textDisplay *widget.Label) *fyne.Container {
 	radioGroup := createPatchRadio(
 		"ALL",
 		"GERS 1",
@@ -60,7 +60,7 @@ func createGERSChangeBox(textDisplay *widget.Label) *fyne.Container {
 		"GERS 4",
 		"GERS 5",
 	)
-	changeButtons := createPatchButtons(textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")
+	changeButtons := createPatchButtons(p, textDisplay, radioGroup, "ON", "OFF", "Reset", "HardReset")
 	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
 
 	return changeContainer
@@ -74,17 +74,17 @@ func createPatchRadio(texts ...string) *widget.RadioGroup {
 	return radioGroup
 }
 
-func createPatchButtons(textDisplay *widget.Label, radioGroup *widget.RadioGroup, texts ...string) *fyne.Container {
-	buttons := make([]fyne.CanvasObject, len(texts))
+func createPatchButtons(p *api.PowerManager, textDisplay *widget.Label, radioGroup *widget.RadioGroup, states ...string) *fyne.Container {
+	buttons := make([]fyne.CanvasObject, len(states))
 
-	for i, text := range texts {
-		btn := widget.NewButton(text, func(text string, rg *widget.RadioGroup) func() {
-			return func() { // TODO: изменить поведение этой функции
-				selected := rg.Selected
-				println(text + " clicked, RadioGroup selected: " + selected)
-				textDisplay.SetText(text + " clicked, RadioGroup selected: " + selected)
+	for i, state := range states {
+		btn := widget.NewButton(state, func(state string, rg *widget.RadioGroup) func() {
+			return func() {
+				device := rg.Selected
+				textDisplay.SetText(state + " clicked, RadioGroup selected: " + device)
+				p.ChangeState(device, state)
 			}
-		}(text, radioGroup))
+		}(state, radioGroup))
 		buttons[i] = btn
 	}
 

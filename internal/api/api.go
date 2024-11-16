@@ -93,9 +93,13 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 	}
 }
 
-func (pm *PowerManager) ChangeState(data map[string]string) (string, error) {
+func (pm *PowerManager) ChangeState(device, state string) (string, error) {
 	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
 
+	data, err := pm.createChangeStateBody(device, state)
+	if err != nil {
+		return "", err
+	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		msg := fmt.Sprintf("JSON encoding error: %v", err)
@@ -129,4 +133,20 @@ func (pm *PowerManager) ChangeState(data map[string]string) (string, error) {
 	}
 
 	return string(body), nil
+}
+
+func (pm *PowerManager) createChangeStateBody(device, state string) (map[string]string, error) {
+	if info, err := pm.GetInfo(); err != nil {
+		return nil, err
+	} else if info.Type == "GERS control" {
+		if device == "ALL" {
+			return map[string]string{"GERS": "0", "state": state}, nil
+		}
+		return map[string]string{"GERS": string(device[5]), "state": state}, nil
+
+	} else if info.Type == "Monitor assembly (3.0V)" {
+		return map[string]string{"Device": device, "state": state}, nil
+	} else {
+		return nil, fmt.Errorf("unknown type of powerManager: " + info.Type)
+	}
 }
