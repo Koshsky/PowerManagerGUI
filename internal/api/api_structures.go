@@ -3,22 +3,22 @@ package api
 import "fmt"
 
 type PowerManagerInfo struct {
-	Type              string `json:"type"`               // Тип устройства
-	Name              string `json:"name"`               // Описание (макс. 35 символов)
-	IP                string `json:"ip"`                 // IP-адрес устройства
-	Mask              string `json:"mask"`               // Маска подсети
-	Gateway           string `json:"gateway"`            // Шлюз
-	MAC               string `json:"mac"`                // MAC-адрес
-	PHYAutonegotation string `json:"phy_autonegotation"` // Автонастройка PHY
-	PHYLinkMode       string `json:"phy_link_mode"`      // Режим соединения PHY
-	PHYLinkSpeed      string `json:"phy_link_speed"`     // Скорость соединения PHY
-	Version           string `json:"version"`            // Версия прошивки или ПО устройства
+	Type              string `json:"type"`
+	Name              string `json:"name"`
+	IP                string `json:"ip"`
+	Mask              string `json:"mask"`
+	Gateway           string `json:"gateway"`
+	MAC               string `json:"mac"`
+	PHYAutonegotation string `json:"phy_autonegotation"`
+	PHYLinkMode       string `json:"phy_link_mode"`
+	PHYLinkSpeed      string `json:"phy_link_speed"`
+	Version           string `json:"version"`
 }
 
 type SensorData struct {
-	Temperature string `json:"Temperature"` // Температура в формате "25.0 C"
-	Voltage12V  string `json:"12 VDC"`      // Напряжение на линии 12 VDC
-	Voltage5V   string `json:"5 VDC"`       // Напряжение на линии 5 VDC
+	Temperature string `json:"Temperature"`
+	Voltage12V  string `json:"12 VDC"`
+	Voltage5V   string `json:"5 VDC"`
 }
 
 type MonitorStatus struct {

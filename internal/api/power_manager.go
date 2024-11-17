@@ -13,10 +13,13 @@ type PowerManager struct {
 	Gateway  string `json:"gateway"`
 	Login    string `json:"login"`    // admin
 	Password string `json:"password"` // usermvs
+	Type     string `json:"type"`
 }
 
 func NewPowerManager(ip string) *PowerManager {
-	return &PowerManager{IP: ip}
+	pm := &PowerManager{IP: ip}
+	pm.GetInfo()
+	return pm
 }
 
 func CreatePowerManagers(IPs []string) []*PowerManager {

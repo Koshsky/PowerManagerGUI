@@ -15,12 +15,12 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	MessageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
 
 	var changeContainer *fyne.Container
-	if info, err := pm.GetInfo(); err != nil {
-		return nil, err
-	} else if info.Type == "GERS control" {
+	if pm.Type == "GERS control" {
 		changeContainer = createGERSChangeBox(pm, MessageLabel)
-	} else if info.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == "Monitor assembly (3.0V)" {
 		changeContainer = createMonitorChangeBox(pm, MessageLabel)
+	} else {
+		// TODO: создать ошибку fmt.Errorf где-то в глобальной области и бросить ее здесь и в похожих местах
 	}
 
 	content := container.NewVBox(

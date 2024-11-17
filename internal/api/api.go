@@ -30,7 +30,7 @@ func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 	if err := json.NewDecoder(tee).Decode(&info); err != nil {
 		return PowerManagerInfo{}, err
 	}
-
+	pm.Type = info.Type // update powerManager with type info
 	return info, nil
 }
 
@@ -76,20 +76,20 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 
 	tee := io.TeeReader(response.Body, os.Stdout)
 
-	if info, _ := pm.GetInfo(); info.Type == "GERS control" {
+	if pm.Type == "GERS control" {
 		var status GERSStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return GERSStatus{}, err
 		}
 		return status, nil
-	} else if info.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == "Monitor assembly (3.0V)" {
 		var status MonitorStatus
 		if err := json.NewDecoder(tee).Decode(&status); err != nil {
 			return MonitorStatus{}, err
 		}
 		return status, nil
 	} else {
-		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + info.Type)
+		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + pm.Type)
 	}
 }
 
@@ -136,17 +136,15 @@ func (pm *PowerManager) ChangeState(device, state string) (string, error) {
 }
 
 func (pm *PowerManager) createChangeStateBody(device, state string) (map[string]string, error) {
-	if info, err := pm.GetInfo(); err != nil {
-		return nil, err
-	} else if info.Type == "GERS control" {
+	if pm.Type == "GERS control" {
 		if device == "ALL" {
 			return map[string]string{"GERS": "0", "state": state}, nil
 		}
 		return map[string]string{"GERS": string(device[5]), "state": state}, nil
 
-	} else if info.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == "Monitor assembly (3.0V)" {
 		return map[string]string{"Device": device, "state": state}, nil
 	} else {
-		return nil, fmt.Errorf("unknown type of powerManager: " + info.Type)
+		return nil, fmt.Errorf("unknown type of powerManager: " + pm.Type)
 	}
 }
