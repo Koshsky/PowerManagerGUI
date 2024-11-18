@@ -1,40 +1,53 @@
 package gui
 
 import (
-	fyne "fyne.io/fyne/v2"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
+type ManagerTab struct {
+	powerManager *api.PowerManager
+	messageLabel *widget.Label
+}
+
 func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
+	managerTab := &ManagerTab{
+		powerManager: pm,
+		messageLabel: widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!"),
+	}
+	managerTab.messageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
+
 	tabTitle := pm.IP
-
-	MessageLabel := widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
-	MessageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
-
-	changeContainer := createChangeBox(pm, MessageLabel)
-
-	content := container.NewVBox(
-		createInfoButton(pm, MessageLabel),
-		createAnalogButton(pm, MessageLabel),
-		createStatusButton(pm, MessageLabel),
-		changeContainer,
-	)
+	content := managerTab.createContent()
 
 	return container.NewTabItem(tabTitle, content), nil
 }
 
-func createChangeBox(pm *api.PowerManager, textDisplay *widget.Label) *fyne.Container {
-	radioGroup := createPatchRadio(pm.Devices...)
-	changeButtons := createPatchButtons(pm, textDisplay, radioGroup, pm.States...)
-	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, textDisplay)
+func (mt *ManagerTab) createContent() *fyne.Container {
+	changeContainer := mt.createChangeBox()
+
+	content := container.NewVBox(
+		mt.createInfoButton(),
+		mt.createAnalogButton(),
+		mt.createStatusButton(),
+		changeContainer,
+	)
+
+	return content
+}
+
+func (mt *ManagerTab) createChangeBox() *fyne.Container {
+	radioGroup := mt.createPatchRadio(mt.powerManager.Devices...)
+	changeButtons := mt.createPatchButtons(radioGroup, mt.powerManager.States...)
+	changeContainer := container.NewAdaptiveGrid(3, radioGroup, changeButtons, mt.messageLabel)
 
 	return changeContainer
 }
 
-func createPatchRadio(texts ...string) *widget.RadioGroup {
+func (mt *ManagerTab) createPatchRadio(texts ...string) *widget.RadioGroup {
 	radioGroup := widget.NewRadioGroup(texts, func(selected string) {})
 	radioGroup.SetSelected(texts[0])
 	radioGroup.Required = true
@@ -42,15 +55,15 @@ func createPatchRadio(texts ...string) *widget.RadioGroup {
 	return radioGroup
 }
 
-func createPatchButtons(pm *api.PowerManager, textDisplay *widget.Label, radioGroup *widget.RadioGroup, states ...string) *fyne.Container {
+func (mt *ManagerTab) createPatchButtons(radioGroup *widget.RadioGroup, states ...string) *fyne.Container {
 	buttons := make([]fyne.CanvasObject, len(states))
 
 	for i, state := range states {
 		btn := widget.NewButton(state, func(state string, rg *widget.RadioGroup) func() {
 			return func() {
 				device := rg.Selected
-				textDisplay.SetText(state + " clicked, RadioGroup selected: " + device)
-				pm.ChangeState(device, state)
+				mt.messageLabel.SetText(state + " clicked, RadioGroup selected: " + device)
+				mt.powerManager.ChangeState(device, state)
 			}
 		}(state, radioGroup))
 		buttons[i] = btn
@@ -59,32 +72,32 @@ func createPatchButtons(pm *api.PowerManager, textDisplay *widget.Label, radioGr
 	return container.NewVBox(buttons...)
 }
 
-func createInfoButton(pm *api.PowerManager, textDisplay *widget.Label) *widget.Button {
+func (mt *ManagerTab) createInfoButton() *widget.Button {
 	return widget.NewButton("get_info", func() {
-		if info, err := pm.GetInfo(); err == nil {
-			textDisplay.SetText(info.Str())
+		if info, err := mt.powerManager.GetInfo(); err == nil {
+			mt.messageLabel.SetText(info.Str())
 		} else {
-			textDisplay.SetText(err.Error())
+			mt.messageLabel.SetText(err.Error())
 		}
 	})
 }
 
-func createAnalogButton(pm *api.PowerManager, textDisplay *widget.Label) *widget.Button {
+func (mt *ManagerTab) createAnalogButton() *widget.Button {
 	return widget.NewButton("get_analog", func() {
-		if data, err := pm.GetAnalog(); err == nil {
-			textDisplay.SetText(data.Str())
+		if data, err := mt.powerManager.GetAnalog(); err == nil {
+			mt.messageLabel.SetText(data.Str())
 		} else {
-			textDisplay.SetText(err.Error())
+			mt.messageLabel.SetText(err.Error())
 		}
 	})
 }
 
-func createStatusButton(pm *api.PowerManager, textDisplay *widget.Label) *widget.Button {
+func (mt *ManagerTab) createStatusButton() *widget.Button {
 	return widget.NewButton("get_status", func() {
-		if status, err := pm.GetStatus(); err == nil {
-			textDisplay.SetText(status.Str())
+		if status, err := mt.powerManager.GetStatus(); err == nil {
+			mt.messageLabel.SetText(status.Str())
 		} else {
-			textDisplay.SetText(err.Error())
+			mt.messageLabel.SetText(err.Error())
 		}
 	})
 }
