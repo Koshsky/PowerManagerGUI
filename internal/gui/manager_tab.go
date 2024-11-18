@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"fmt"
+
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -20,7 +22,7 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	} else if pm.Type == "Monitor assembly (3.0V)" {
 		changeContainer = createMonitorChangeBox(pm, MessageLabel)
 	} else {
-		// TODO: создать ошибку fmt.Errorf где-то в глобальной области и бросить ее здесь и в похожих местах
+		return nil, fmt.Errorf("NewManagerTab: cannot create new tab: uknown type of PowerManager: %v", pm.Type)
 	}
 
 	content := container.NewVBox(

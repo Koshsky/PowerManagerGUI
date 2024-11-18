@@ -12,7 +12,7 @@ import (
 func NewHub(myWindow fyne.Window, operatingRoom string) *container.TabItem {
 	tabTitle := "HUB"
 
-	messageLabel := createMessageLabel() // for error printing
+	messageLabel := createMessageLabel()
 
 	OREntry := widget.NewEntry()
 	OREntry.SetPlaceHolder("Enter the operating room number...")
