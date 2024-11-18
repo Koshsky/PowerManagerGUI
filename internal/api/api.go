@@ -135,9 +135,9 @@ func (pm *PowerManager) ChangeState(device, state string) error {
 
 func (pm *PowerManager) prepareChangeStateBody(device, state string) (map[string]string, error) {
 	if !slices.Contains(pm.Devices, device) {
-		return nil, fmt.Errorf("prepareChangeStateBody: unkown device: %s", device)
+		return nil, fmt.Errorf("prepareChangeStateBody: unknown device: %s", device)
 	} else if !slices.Contains(pm.States, state) {
-		return nil, fmt.Errorf("prepareChangeStateBody: unkown state: %s", state)
+		return nil, fmt.Errorf("prepareChangeStateBody: unknown state: %s", state)
 	}
 	if pm.Type == "GERS control" {
 		for i := 0; i < len(pm.Devices); i++ {
