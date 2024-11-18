@@ -11,6 +11,7 @@ import (
 	"strconv"
 )
 
+// TODO: TeeReader ИЗБЫТОЧЕН! убрать!!
 func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 	url := fmt.Sprintf("http://%s/get_info.json", pm.IP)
 	response, err := http.Get(url)

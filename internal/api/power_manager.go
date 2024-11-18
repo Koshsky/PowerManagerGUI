@@ -56,7 +56,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 	return pm, nil
 }
 
-func CreatePowerManagers(IPs []string) []*PowerManager {
+func BuildPowerManagers(IPs []string) []*PowerManager {
 	var powerManagers []*PowerManager
 	for _, ip := range IPs {
 		p, err := NewPowerManager(ip)

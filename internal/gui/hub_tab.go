@@ -25,7 +25,7 @@ func (a *App) NewHub(operatingRoom string) *container.TabItem {
 
 	OREntry := widget.NewEntry()
 	OREntry.SetPlaceHolder("Enter the operating room number...")
-	OREntry.SetText(operatingRoom) // по умолчанию
+	OREntry.SetText(operatingRoom) // by default
 
 	scanBtn := hub.createScanButton(OREntry)
 
@@ -36,14 +36,12 @@ func (a *App) NewHub(operatingRoom string) *container.TabItem {
 	return container.NewTabItem(tabTitle, content)
 }
 
-// createScanButton создает кнопку для сканирования сети и обновления.
 func (h *Hub) createScanButton(OREntry *widget.Entry) *widget.Button {
 	return widget.NewButton("SCAN NETWORK AND REFRESH", func() {
 		h.ScanAndRefresh(OREntry.Text)
 	})
 }
 
-// ScanAndRefresh выполняет сканирование сети и обновляет вкладки.
 func (h *Hub) ScanAndRefresh(operatingRoom string) {
 	loadingDialog := dialog.NewProgressInfinite("Network scanning", "Please, wait...", h.app.Window)
 	loadingDialog.Show()
@@ -55,7 +53,7 @@ func (h *Hub) ScanAndRefresh(operatingRoom string) {
 		return
 	}
 
-	powerManagers := api.CreatePowerManagers(IPs)
+	powerManagers := api.BuildPowerManagers(IPs)
 
 	hub := h.app.NewHub(operatingRoom)
 	newTabsItems := container.NewAppTabs()
@@ -68,7 +66,6 @@ func (h *Hub) ScanAndRefresh(operatingRoom string) {
 	h.app.Window.SetContent(newTabsItems)
 }
 
-// createMessageLabel создает метку для отображения сообщений.
 func createMessageLabel() *widget.Label {
 	return widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!")
 }
