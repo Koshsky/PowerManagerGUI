@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"slices"
+	"strconv"
 )
 
 func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
@@ -93,23 +95,21 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 	}
 }
 
-func (pm *PowerManager) ChangeState(device, state string) (string, error) {
+func (pm *PowerManager) ChangeState(device, state string) error {
 	url := fmt.Sprintf("http://%s/changeState.json", pm.IP)
 
-	data, err := pm.createChangeStateBody(device, state)
+	data, err := pm.prepareChangeStateBody(device, state)
 	if err != nil {
-		return "", err
+		return err
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		msg := fmt.Sprintf("JSON encoding error: %v", err)
-		return msg, fmt.Errorf(msg)
+		return fmt.Errorf("JSON encoding error: %v", err)
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		msg := fmt.Sprintf("error creating request: %v", err)
-		return msg, fmt.Errorf(msg)
+		return fmt.Errorf("error creating request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -117,34 +117,34 @@ func (pm *PowerManager) ChangeState(device, state string) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		msg := fmt.Sprintf("error while executing request: %v", err)
-		return msg, fmt.Errorf(msg)
+		return fmt.Errorf(msg)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		msg := fmt.Sprintf("failed to change device state, status: %d", resp.StatusCode)
-		return msg, fmt.Errorf(msg)
+		return fmt.Errorf("failed to change device state, status: %d", resp.StatusCode)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 	if err != nil {
-		msg := fmt.Sprintf("error reading response: %v", err)
-		return msg, fmt.Errorf(msg)
+		return fmt.Errorf("error reading response: %v", err)
 	}
 
-	return string(body), nil
+	return nil
 }
 
-func (pm *PowerManager) createChangeStateBody(device, state string) (map[string]string, error) {
-	if pm.Type == "GERS control" {
-		if device == "ALL" {
-			return map[string]string{"GERS": "0", "state": state}, nil
-		}
-		return map[string]string{"GERS": string(device[5]), "state": state}, nil
-
-	} else if pm.Type == "Monitor assembly (3.0V)" {
-		return map[string]string{"Device": device, "state": state}, nil
-	} else {
-		return nil, fmt.Errorf("unknown type of powerManager: " + pm.Type)
+func (pm *PowerManager) prepareChangeStateBody(device, state string) (map[string]string, error) {
+	if !slices.Contains(pm.Devices, device) {
+		return nil, fmt.Errorf("prepareChangeStateBody: unkown device: %s", device)
+	} else if !slices.Contains(pm.States, state) {
+		return nil, fmt.Errorf("prepareChangeStateBody: unkown state: %s", state)
 	}
+	if pm.Type == "GERS control" {
+		for i := 0; i < len(pm.Devices); i++ {
+			if pm.Devices[i] == device {
+				return map[string]string{"GERS": strconv.Itoa(i), "state": state}, nil
+			}
+		}
+	}
+	return map[string]string{"Device": device, "state": state}, nil
 }

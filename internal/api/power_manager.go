@@ -1,5 +1,10 @@
 package api
 
+import (
+	"fmt"
+	"log"
+)
+
 const (
 	MASK    = "255.255.255.0"
 	GATEWAY = "192.168.66.1"
@@ -8,24 +13,57 @@ const (
 type PowerManager struct {
 	// TODO: узнать какие параметры НУЖНЫ для апи общения
 	// сейчас мне кажется что достаточно только IP. даже логин и пароль избыточен...
-	IP       string `json:"ip"`
-	Mask     string `json:"mask"`
-	Gateway  string `json:"gateway"`
-	Login    string `json:"login"`    // admin
-	Password string `json:"password"` // usermvs
-	Type     string `json:"type"`
+	IP       string   `json:"ip"`
+	Mask     string   `json:"mask"`
+	Gateway  string   `json:"gateway"`
+	Login    string   `json:"login"`    // admin
+	Password string   `json:"password"` // usermvs
+	Type     string   `json:"type"`     // "GERS control" / "Monitor assembly (3.0V)"
+	Devices  []string `json:"devices"`
+	States   []string `json:"commands"`
 }
 
-func NewPowerManager(ip string) *PowerManager {
+func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	pm.GetInfo()
-	return pm
+	if _, err := pm.GetInfo(); err != nil {
+		return nil, fmt.Errorf("cannot create power manager: %v", err)
+	}
+	if pm.Type == "GERS control" {
+		pm.Devices = []string{
+			"ALL",
+			"GERS 1",
+			"GERS 2",
+			"GERS 3",
+			"GERS 4",
+			"GERS 5",
+		}
+		pm.States = []string{"ON", "OFF", "Reset", "HardReset"}
+	} else if pm.Type == "Monitor assembly (3.0V)" {
+		pm.Devices = []string{
+			"Mini PC 1",
+			"Mini PC 2",
+			"Converter 1",
+			"Converter 2",
+			"Monitor",
+			"Common Power",
+			"Reserved 1",
+			"Reserved 2",
+		}
+		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
+	} else {
+		return nil, fmt.Errorf("cannot create power manager: uknown type of manager: " + pm.Type)
+	}
+	return pm, nil
 }
 
 func CreatePowerManagers(IPs []string) []*PowerManager {
 	var powerManagers []*PowerManager
 	for _, ip := range IPs {
-		p := NewPowerManager(ip)
+		p, err := NewPowerManager(ip)
+		if err != nil {
+			log.Println(err.Error())
+			continue
+		}
 		powerManagers = append(powerManagers, p)
 	}
 	return powerManagers
