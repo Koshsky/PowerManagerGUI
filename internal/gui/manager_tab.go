@@ -13,10 +13,31 @@ import (
 type ManagerTab struct {
 	powerManager *api.PowerManager
 	messageLabel *widget.Label
-	LastGet      string
 	changeLabel  *widget.Label
+	LastGet      string
+	States       map[string]string
 }
 
+func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
+	managerTab := &ManagerTab{
+		powerManager: pm,
+		messageLabel: widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!"),
+		changeLabel:  widget.NewLabel("Device: " + pm.Devices[0] + "\nButton pressed:"),
+		States:       make(map[string]string),
+	}
+	go managerTab.UpdateMessage()
+
+	managerTab.messageLabel.Wrapping = fyne.TextWrapWord
+
+	tabTitle := pm.IP
+	content := managerTab.createContent()
+
+	for _, device := range pm.Devices {
+		managerTab.States[device] = ""
+	}
+
+	return container.NewTabItem(tabTitle, content), nil
+}
 func (mt *ManagerTab) UpdateMessage() {
 	for {
 		switch mt.LastGet {
@@ -27,32 +48,14 @@ func (mt *ManagerTab) UpdateMessage() {
 		case "get_status":
 			mt.updateLabelFromFunc(mt.powerManager.GetStatus)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
 func (mt *ManagerTab) updateLabelFromFunc(getFunc func() (api.JSONStringer, error)) {
-	if info, err := getFunc(); err == nil {
+	if info, err := getFunc(); err == nil { // TODO: есть ли необходимость логировать ошибки?
 		mt.messageLabel.SetText(info.Str())
-	} else {
-		mt.messageLabel.SetText(err.Error())
 	}
-}
-
-func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
-	managerTab := &ManagerTab{
-		powerManager: pm,
-		messageLabel: widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!"),
-		changeLabel:  widget.NewLabel("Device:\nState:"),
-	}
-	go managerTab.UpdateMessage()
-
-	managerTab.messageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
-
-	tabTitle := pm.IP
-	content := managerTab.createContent()
-
-	return container.NewTabItem(tabTitle, content), nil
 }
 
 func (mt *ManagerTab) createContent() *fyne.Container {
@@ -68,6 +71,9 @@ func (mt *ManagerTab) createContent() *fyne.Container {
 	return content
 }
 
+// TODO: создать для этого контейнера отдельный класс
+// Это позволит более крепко связать радио и кнопки, что позволит выполнить следующее:
+// TODO: добавить блокировку ON OFF RESET для устройств, управляемых Monitor assembl, кроме mini PC
 func (mt *ManagerTab) createChangeBox() *fyne.Container {
 	radioGroup := mt.createPatchRadio(mt.powerManager.Devices...)
 	changeButtons := mt.createPatchButtons(radioGroup, mt.powerManager.States...)
@@ -76,12 +82,19 @@ func (mt *ManagerTab) createChangeBox() *fyne.Container {
 	return changeContainer
 }
 
-func (mt *ManagerTab) createPatchRadio(texts ...string) *widget.RadioGroup {
-	radioGroup := widget.NewRadioGroup(texts, func(selected string) {})
-	radioGroup.SetSelected(texts[0])
+func (mt *ManagerTab) createPatchRadio(devices ...string) *widget.RadioGroup {
+	radioGroup := widget.NewRadioGroup(devices, func(selected string) {})
+	radioGroup.SetSelected(devices[0])
 	radioGroup.Required = true
 	radioGroup.Horizontal = false
+	radioGroup.OnChanged = func(selected string) {
+		mt.changeLabelText(selected, mt.States[selected])
+	}
 	return radioGroup
+}
+
+func (mt *ManagerTab) changeLabelText(device, state string) {
+	mt.changeLabel.SetText("Device selected: " + device + "\nButton clicked: " + state)
 }
 
 func (mt *ManagerTab) createPatchButtons(radioGroup *widget.RadioGroup, states ...string) *fyne.Container {
@@ -90,10 +103,13 @@ func (mt *ManagerTab) createPatchButtons(radioGroup *widget.RadioGroup, states .
 	for i, state := range states {
 		btn := widget.NewButton(state, func(state string, rg *widget.RadioGroup) func() {
 			return func() {
-				device := rg.Selected
+				selected := rg.Selected
 				mt.LastGet = "get_status"
-				mt.powerManager.ChangeState(device, state)
-				mt.changeLabel.SetText("Device selected: " + device + "\nButton clicked: " + state)
+				mt.States[selected] = state
+				mt.powerManager.ChangeState(selected, state)
+				mt.changeLabelText(selected, state)
+				mt.changeLabelText(selected, mt.States[selected])
+
 			}
 		}(state, radioGroup))
 		buttons[i] = btn
