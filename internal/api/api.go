@@ -126,18 +126,18 @@ func (pm *PowerManager) ChangeState(device, state string) error {
 	return nil
 }
 
-func (pm *PowerManager) prepareChangeStateBody(device, state string) (map[string]string, error) {
+func (pm *PowerManager) prepareChangeStateBody(device, cmd string) (map[string]string, error) {
 	if !slices.Contains(pm.Devices, device) {
 		return nil, fmt.Errorf("prepareChangeStateBody: unknown device: %s", device)
-	} else if !slices.Contains(pm.States, state) {
-		return nil, fmt.Errorf("prepareChangeStateBody: unknown state: %s", state)
+	} else if !slices.Contains(pm.States, cmd) {
+		return nil, fmt.Errorf("prepareChangeStateBody: unknown command: %s", cmd)
 	}
 	if pm.Type == "GERS control" {
 		for i := 0; i < len(pm.Devices); i++ {
 			if pm.Devices[i] == device {
-				return map[string]string{"GERS": strconv.Itoa(i), "state": state}, nil
+				return map[string]string{"GERS": strconv.Itoa(i), "state": cmd}, nil
 			}
 		}
 	}
-	return map[string]string{"Device": device, "state": state}, nil
+	return map[string]string{"Device": device, "state": cmd}, nil
 }
