@@ -42,10 +42,10 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 		pm.Devices = []string{
 			"Mini PC 1",
 			"Mini PC 2",
+			"Monitor",
+			"Common power",
 			"Converter 1",
 			"Converter 2",
-			"Monitor",
-			"Common Power",
 			"Reserved 1",
 			"Reserved 2",
 		}
@@ -56,7 +56,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 	return pm, nil
 }
 
-func CreatePowerManagers(IPs []string) []*PowerManager {
+func BuildPowerManagers(IPs []string) []*PowerManager {
 	var powerManagers []*PowerManager
 	for _, ip := range IPs {
 		p, err := NewPowerManager(ip)

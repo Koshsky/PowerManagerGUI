@@ -64,7 +64,7 @@ func scanGERSManagers(operatingRoom string) ([]string, error) {
 
 		go func(ip string) {
 			defer wg.Done()
-			success, _, err := ping(ip, 80)
+			success, _, err := Ping(ip, 80)
 			if err == nil && success {
 				mu.Lock()
 				reachableIPs = append(reachableIPs, ip)
@@ -87,7 +87,7 @@ func scanMonitorManagers(operatingRoom string) ([]string, error) {
 
 		go func(ip string) {
 			defer wg.Done()
-			success, _, err := ping(ip, 80)
+			success, _, err := Ping(ip, 80)
 			if err == nil && success {
 				mu.Lock()
 				reachableIPs = append(reachableIPs, ip)
@@ -100,7 +100,7 @@ func scanMonitorManagers(operatingRoom string) ([]string, error) {
 	return reachableIPs, nil
 }
 
-func ping(address string, port int) (bool, time.Duration, error) {
+func Ping(address string, port int) (bool, time.Duration, error) {
 	startTime := time.Now()
 
 	addr := fmt.Sprintf("%s:%d", address, port)
