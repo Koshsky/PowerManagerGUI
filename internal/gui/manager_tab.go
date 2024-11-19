@@ -30,6 +30,7 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	go managerTab.UpdateMessage()
 
 	managerTab.messageLabel.Wrapping = fyne.TextWrapWord
+	managerTab.changeLabel.Wrapping = fyne.TextWrapWord
 
 	tabTitle := pm.IP
 	content := managerTab.createContent()
@@ -111,7 +112,7 @@ func (mt *ManagerTab) handleButtonClick(cmd string, rg *widget.RadioGroup) {
 	device := rg.Selected
 	mt.LastGet = "get_status"
 	if !mt.isDeviceActionAllowed(device, cmd) {
-		mt.changeLabel.SetText(cmd + " command is not allowed for " + device)
+		mt.changeLabel.SetText(cmd + " isn't allowed for " + device)
 	} else {
 		if device == "ALL" { // special case for ALL GERS (not only GERS btw)
 			for device := range mt.States {
@@ -119,7 +120,7 @@ func (mt *ManagerTab) handleButtonClick(cmd string, rg *widget.RadioGroup) {
 			}
 		}
 		mt.States[device] = cmd
-		mt.powerManager.ChangeState(device, cmd)
+		// mt.powerManager.ChangeState(device, cmd)
 		mt.changeLabel.SetText("Device selected: " + device + "\nButton clicked: " + cmd)
 	}
 }
