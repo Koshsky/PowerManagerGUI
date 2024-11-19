@@ -2,6 +2,10 @@ package api
 
 import "fmt"
 
+type JSONStringer interface {
+	Str() string
+}
+
 type PowerManagerInfo struct {
 	Type              string `json:"type"`
 	Name              string `json:"name"`
@@ -41,10 +45,6 @@ type GERSStatus struct {
 	GERS3Status string `json:"GERS 3"`
 	GERS4Status string `json:"GERS 4"`
 	GERS5Status string `json:"GERS 5"`
-}
-
-type JSONStringer interface {
-	Str() string
 }
 
 func (g GERSStatus) Str() string {

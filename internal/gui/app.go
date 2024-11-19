@@ -9,9 +9,9 @@ import (
 )
 
 type App struct {
-	App    fyne.App
-	Window fyne.Window
-	Hub    container.TabItem
+	App     fyne.App
+	Window  fyne.Window
+	Hub     container.TabItem
 }
 
 func NewApp() *App {

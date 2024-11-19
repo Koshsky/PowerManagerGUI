@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"slices"
 	"strconv"
 )
 
-// TODO: TeeReader ИЗБЫТОЧЕН! убрать!!
-func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
+func (pm *PowerManager) GetInfo() (JSONStringer, error) {
 	url := fmt.Sprintf("http://%s/get_info.json", pm.IP)
 	response, err := http.Get(url)
 	if err != nil {
@@ -27,17 +25,15 @@ func (pm *PowerManager) GetInfo() (PowerManagerInfo, error) {
 		return PowerManagerInfo{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	tee := io.TeeReader(response.Body, os.Stdout)
-
 	var info PowerManagerInfo
-	if err := json.NewDecoder(tee).Decode(&info); err != nil {
+	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
 		return PowerManagerInfo{}, err
 	}
 	pm.Type = info.Type // update powerManager with type info
 	return info, nil
 }
 
-func (pm *PowerManager) GetAnalog() (SensorData, error) {
+func (pm *PowerManager) GetAnalog() (JSONStringer, error) {
 	url := fmt.Sprintf("http://%s/get_analog.json", pm.IP)
 	response, err := http.Get(url)
 	if err != nil {
@@ -52,10 +48,8 @@ func (pm *PowerManager) GetAnalog() (SensorData, error) {
 		return SensorData{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	tee := io.TeeReader(response.Body, os.Stdout)
-
 	var data SensorData
-	if err := json.NewDecoder(tee).Decode(&data); err != nil {
+	if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
 		return SensorData{}, err
 	}
 
@@ -77,17 +71,15 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		return MonitorStatus{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	tee := io.TeeReader(response.Body, os.Stdout)
-
 	if pm.Type == "GERS control" {
 		var status GERSStatus
-		if err := json.NewDecoder(tee).Decode(&status); err != nil {
+		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return GERSStatus{}, err
 		}
 		return status, nil
 	} else if pm.Type == "Monitor assembly (3.0V)" {
 		var status MonitorStatus
-		if err := json.NewDecoder(tee).Decode(&status); err != nil {
+		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return MonitorStatus{}, err
 		}
 		return status, nil
