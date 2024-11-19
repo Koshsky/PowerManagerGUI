@@ -11,12 +11,14 @@ import (
 type ManagerTab struct {
 	powerManager *api.PowerManager
 	messageLabel *widget.Label
+	changeLabel  *widget.Label
 }
 
 func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	managerTab := &ManagerTab{
 		powerManager: pm,
 		messageLabel: widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!"),
+		changeLabel:  widget.NewLabel("Device:\nState:"),
 	}
 	managerTab.messageLabel.Wrapping = fyne.TextWrapWord // TODO: выяснить имеет ли это вообще смысл
 
@@ -56,18 +58,25 @@ func (mt *ManagerTab) createPatchRadio(texts ...string) *widget.RadioGroup {
 }
 
 func (mt *ManagerTab) createPatchButtons(radioGroup *widget.RadioGroup, states ...string) *fyne.Container {
-	buttons := make([]fyne.CanvasObject, len(states))
+	buttons := make([]fyne.CanvasObject, len(states)+1)
 
 	for i, state := range states {
 		btn := widget.NewButton(state, func(state string, rg *widget.RadioGroup) func() {
 			return func() {
 				device := rg.Selected
-				mt.messageLabel.SetText(state + " clicked, RadioGroup selected: " + device)
 				mt.powerManager.ChangeState(device, state)
+				if status, err := mt.powerManager.GetStatus(); err == nil {
+					mt.messageLabel.SetText(status.Str())
+					mt.changeLabel.SetText("Device selected: " + device + "\nButton clicked: " + state)
+				} else {
+					mt.messageLabel.SetText(err.Error())
+					mt.changeLabel.SetText(err.Error())
+				}
 			}
 		}(state, radioGroup))
 		buttons[i] = btn
 	}
+	buttons[len(states)] = mt.changeLabel
 
 	return container.NewVBox(buttons...)
 }

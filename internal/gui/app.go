@@ -35,7 +35,7 @@ func (a *App) InitWindow() {
 	tabsItems := container.NewAppTabs()
 	tabsItems.Append(tab)
 	a.Window.SetContent(tabsItems)
-	a.Window.Resize(fyne.NewSize(700, 500))
+	a.Window.Resize(fyne.NewSize(700, 600))
 }
 
 func (a *App) Run() {
