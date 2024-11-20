@@ -25,7 +25,7 @@ func (mt *ManagerTab) InitChangeBox() *fyne.Container {
 		ChangeLabel: widget.NewLabel("Device: " + mt.powerManager.Devices[0] + "\nButton pressed: no one"),
 	}
 	for _, device := range mt.powerManager.Devices {
-		cb.States[device] = ""
+		cb.States[device] = "no one"
 	}
 	cb.initRadio(mt.powerManager.Devices...)
 	cb.initButtons(mt.powerManager.States...)
