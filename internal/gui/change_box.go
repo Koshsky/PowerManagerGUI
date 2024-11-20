@@ -68,8 +68,12 @@ func (cb *ChangeBox) handleButtonClick(cmd string) {
 			for device := range cb.States {
 				cb.States[device] = cmd
 			}
+		} else {
+			cb.States[device] = cmd
+			if _, exists := cb.States["ALL"]; exists {
+				cb.States["ALL"] = ""
+			}
 		}
-		cb.States[device] = cmd
 		// cb.MT.powerManager.ChangeState(device, cmd)
 		cb.ChangeLabel.SetText("Device selected: " + device + "\nButton clicked: " + cmd)
 	}
