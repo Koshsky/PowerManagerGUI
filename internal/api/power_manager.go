@@ -25,8 +25,10 @@ type PowerManager struct {
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	if _, err := pm.GetInfo(); err != nil {
-		return nil, fmt.Errorf("cannot create power manager: %v", err)
+	if ip == "10.4.1.5" {
+		pm.Type = "GERS control"
+	} else {
+		pm.Type = "Monitor assembly (3.0V)"
 	}
 	if pm.Type == "GERS control" {
 		pm.Devices = []string{

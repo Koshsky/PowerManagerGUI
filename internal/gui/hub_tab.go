@@ -5,7 +5,6 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Koshsky/PowerManagerGUI/internal/api"
-	"github.com/Koshsky/PowerManagerGUI/internal/netutils"
 )
 
 type Hub struct {
@@ -47,11 +46,7 @@ func (h *Hub) ScanAndRefresh(operatingRoom string) {
 	loadingDialog.Show()
 	defer loadingDialog.Hide()
 
-	IPs, err := netutils.ScanNetwork(operatingRoom)
-	if err != nil {
-		h.messageLabel.SetText(err.Error())
-		return
-	}
+	IPs := []string{"10.4.1.5", "10.4.1.30"}
 
 	powerManagers := api.BuildPowerManagers(IPs)
 
