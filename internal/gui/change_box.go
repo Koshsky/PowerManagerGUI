@@ -60,7 +60,7 @@ func (cb *ChangeBox) initButtons(states ...string) {
 
 func (cb *ChangeBox) handleButtonClick(cmd string) {
 	device := cb.RG.Selected
-	cb.MT.LastGet = "get_status"
+	cb.MT.lastGet = "get_status"
 	if !cb.isDeviceActionAllowed(device, cmd) {
 		cb.ChangeLabel.SetText(cmd + " command is not allowed for " + device)
 	} else {
@@ -74,7 +74,7 @@ func (cb *ChangeBox) handleButtonClick(cmd string) {
 				cb.States["ALL"] = ""
 			}
 		}
-		// cb.MT.powerManager.ChangeState(device, cmd)
+		cb.MT.powerManager.ChangeState(device, cmd)
 		cb.ChangeLabel.SetText("Device selected: " + device + "\nButton clicked: " + cmd)
 	}
 }

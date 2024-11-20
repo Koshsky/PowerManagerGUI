@@ -14,13 +14,14 @@ type ManagerTab struct {
 	powerManager *api.PowerManager
 	messageLabel *widget.Label
 	changeBox    ChangeBox
-	LastGet      string
+	lastGet      string
 }
 
 func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 	managerTab := &ManagerTab{
 		powerManager: pm,
-		messageLabel: widget.NewLabel("There will be more information here soon, but for now just enjoy the emptiness!"),
+		messageLabel: widget.NewLabel(""),
+		lastGet:      "get_info",
 	}
 	managerTab.InitChangeBox()
 	go managerTab.UpdateMessage()
@@ -34,7 +35,7 @@ func NewManagerTab(pm *api.PowerManager) (*container.TabItem, error) {
 }
 func (mt *ManagerTab) UpdateMessage() {
 	for {
-		switch mt.LastGet {
+		switch mt.lastGet {
 		case "get_info":
 			mt.updateLabelFromFunc(mt.powerManager.GetInfo)
 		case "get_analog":
@@ -64,6 +65,6 @@ func (mt *ManagerTab) createContent() *fyne.Container {
 }
 func (mt *ManagerTab) newGetButton(method string) *widget.Button {
 	return widget.NewButton(method, func() {
-		mt.LastGet = method
+		mt.lastGet = method
 	})
 }
