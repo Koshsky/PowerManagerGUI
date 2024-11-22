@@ -99,12 +99,12 @@ func (ds MonitorStatus) Str() string {
 	info += fmt.Sprintf("Monitor: %s\n", ds.MonitorStatus)
 
 	info += "  Relay:\n"
+	info += fmt.Sprintf("Common Power: %s\n", ds.CommonPowerRelay)
 	info += fmt.Sprintf("Mini PC Group 1: %s\n", ds.MiniPCGroup1Relay)
-	info += fmt.Sprintf("Mini PC Group 2: %s\n", ds.MiniPCGroup2Relay)
 	info += fmt.Sprintf("Converter Group 1: %s\n", ds.ConverterGroup1Relay)
+	info += fmt.Sprintf("Mini PC Group 2: %s\n", ds.MiniPCGroup2Relay)
 	info += fmt.Sprintf("Converter Group 2: %s\n", ds.ConverterGroup2Relay)
 	info += fmt.Sprintf("Monitor: %s\n", ds.MonitorRelay)
-	info += fmt.Sprintf("Common Power: %s\n", ds.CommonPowerRelay)
 	info += fmt.Sprintf("Reserved 1: %s\n", ds.Reserved1Relay)
 	info += fmt.Sprintf("Reserved 2: %s\n", ds.Reserved2Relay)
 
