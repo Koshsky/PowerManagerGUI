@@ -93,18 +93,20 @@ func (ds MonitorStatus) Str() string {
 	var info string
 
 	info += "Device Status Information:\n"
-	info += fmt.Sprintf("Mini PC Group 1 Status: %s\n", ds.MiniPCGroup1Status)
-	info += fmt.Sprintf("Mini PC Group 2 Status: %s\n", ds.MiniPCGroup2Status)
-	info += fmt.Sprintf("Monitor Status: %s\n", ds.MonitorStatus)
+	info += "  Feedback:\n"
+	info += fmt.Sprintf("Mini PC Group 1: %s\n", ds.MiniPCGroup1Status)
+	info += fmt.Sprintf("Mini PC Group 2: %s\n", ds.MiniPCGroup2Status)
+	info += fmt.Sprintf("Monitor: %s\n", ds.MonitorStatus)
 
-	info += fmt.Sprintf("Mini PC Group 1 Relay: %s\n", ds.MiniPCGroup1Relay)
-	info += fmt.Sprintf("Mini PC Group 2 Relay: %s\n", ds.MiniPCGroup2Relay)
-	info += fmt.Sprintf("Converter Group 1 Relay: %s\n", ds.ConverterGroup1Relay)
-	info += fmt.Sprintf("Converter Group 2 Relay: %s\n", ds.ConverterGroup2Relay)
-	info += fmt.Sprintf("Monitor Relay: %s\n", ds.MonitorRelay)
-	info += fmt.Sprintf("Common Power Relay: %s\n", ds.CommonPowerRelay)
-	info += fmt.Sprintf("Reserved 1 Relay: %s\n", ds.Reserved1Relay)
-	info += fmt.Sprintf("Reserved 2 Relay: %s\n", ds.Reserved2Relay)
+	info += "  Relay:\n"
+	info += fmt.Sprintf("Mini PC Group 1: %s\n", ds.MiniPCGroup1Relay)
+	info += fmt.Sprintf("Mini PC Group 2: %s\n", ds.MiniPCGroup2Relay)
+	info += fmt.Sprintf("Converter Group 1: %s\n", ds.ConverterGroup1Relay)
+	info += fmt.Sprintf("Converter Group 2: %s\n", ds.ConverterGroup2Relay)
+	info += fmt.Sprintf("Monitor: %s\n", ds.MonitorRelay)
+	info += fmt.Sprintf("Common Power: %s\n", ds.CommonPowerRelay)
+	info += fmt.Sprintf("Reserved 1: %s\n", ds.Reserved1Relay)
+	info += fmt.Sprintf("Reserved 2: %s\n", ds.Reserved2Relay)
 
 	return info
 }
