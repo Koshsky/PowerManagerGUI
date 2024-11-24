@@ -84,7 +84,7 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		}
 		return status, nil
 	} else {
-		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + pm.Type)
+		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: %s", pm.Type)
 	}
 }
 
@@ -109,8 +109,7 @@ func (pm *PowerManager) ChangeState(device, state string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		msg := fmt.Sprintf("error while executing request: %v", err)
-		return fmt.Errorf(msg)
+		return fmt.Errorf("error while executing request: %v", err)
 	}
 	defer resp.Body.Close()
 

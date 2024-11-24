@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -74,7 +75,9 @@ func (cb *ChangeBox) handleButtonClick(cmd string) {
 				cb.States["ALL"] = ""
 			}
 		}
-		cb.MT.powerManager.ChangeState(device, cmd)
+		if err := cb.MT.powerManager.ChangeState(device, cmd); err != nil {
+			fmt.Println("failed to change state: %w", err)
+		}
 		cb.ChangeLabel.SetText("Device selected: " + device + "\nButton clicked: " + cmd)
 	}
 }

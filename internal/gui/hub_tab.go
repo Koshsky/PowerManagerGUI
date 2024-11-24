@@ -43,7 +43,8 @@ func (h *Hub) createScanButton(OREntry *widget.Entry) *widget.Button {
 }
 
 func (h *Hub) ScanAndRefresh(operatingRoom string) {
-	loadingDialog := dialog.NewProgressInfinite("Network scanning", "Please, wait...", h.app.Window)
+	progressBar := widget.NewProgressBarInfinite()
+	loadingDialog := dialog.NewCustomWithoutButtons("Network scanning", container.NewVBox(progressBar), h.app.Window)
 	loadingDialog.Show()
 	defer loadingDialog.Hide()
 
