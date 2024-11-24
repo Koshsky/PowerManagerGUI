@@ -53,7 +53,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 		}
 		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
 	} else {
-		return nil, fmt.Errorf("cannot create power manager: uknown type of manager: " + pm.Type)
+		return nil, fmt.Errorf("cannot create power manager: uknown type of manager: %s", pm.Type)
 	}
 	return pm, nil
 }

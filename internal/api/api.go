@@ -84,7 +84,7 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		}
 		return status, nil
 	} else {
-		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: " + pm.Type)
+		return MonitorStatus{}, fmt.Errorf("unknown type of power manager: %s", pm.Type)
 	}
 }
 
