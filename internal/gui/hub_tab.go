@@ -71,7 +71,7 @@ func (h *Hub) createScanButton(OREntry *widget.Entry, check *widget.Check, label
 }
 
 func (h *Hub) scanSelected(operatingRoom string) []*api.PowerManager {
-	IPs, err := netutils.MockScanNetwork(operatingRoom)  // TODO: replace with ScanNetwork
+	IPs, err := netutils.ScanNetwork(operatingRoom)
 	if err != nil {
 		h.messageLabel.SetText(err.Error())
 		return nil
@@ -81,7 +81,7 @@ func (h *Hub) scanSelected(operatingRoom string) []*api.PowerManager {
 
 func (h *Hub) scanAll() []*api.PowerManager {
 	powerManagers := []*api.PowerManager{}
-	for or := 1; or < 5; or++ {  // TODO: прикрутить параллельность и протестировать у стенда
+	for or := 1; or < 256; or++ {  // TODO: add parallelism and test at the bench
 		powerManagers = append(powerManagers, h.scanSelected(strconv.Itoa(or))...)
 	}
 	return powerManagers

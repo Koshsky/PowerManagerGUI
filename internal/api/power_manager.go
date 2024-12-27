@@ -49,7 +49,7 @@ func BuildPowerManagers(IPs []string) []*PowerManager {
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	deviceType, err := getDeviceTypeMock(ip)  // TODO: replace with getDeviceType
+	deviceType, err := getDeviceType(ip)
 	if err != nil {
 		return nil, err
 	}
