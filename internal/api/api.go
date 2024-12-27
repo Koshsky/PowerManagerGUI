@@ -48,13 +48,13 @@ func (pm *PowerManager) GetAnalog() (JSONStringer, error) {
 		return SensorDataMonitor{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	if pm.Type == "GERS control" {
+	if pm.Type == GERSControl {
 		var data SensorDataGERS
 		if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
 			return StatusGERS{}, err
 		}
 		return data, nil
-	} else if pm.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == MonitorAssembly {
 		var data SensorDataMonitor
 		if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
 			return StatusMonitor{}, err
@@ -80,13 +80,13 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		return StatusMonitor{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	if pm.Type == "GERS control" {
+	if pm.Type == GERSControl {
 		var status StatusGERS
 		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return StatusGERS{}, err
 		}
 		return status, nil
-	} else if pm.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == MonitorAssembly {
 		var status StatusMonitor
 		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return StatusMonitor{}, err
@@ -140,7 +140,7 @@ func (pm *PowerManager) prepareChangeStateBody(device, cmd string) (map[string]s
 	} else if !slices.Contains(pm.States, cmd) {
 		return nil, fmt.Errorf("prepareChangeStateBody: unknown command: %s", cmd)
 	}
-	if pm.Type == "GERS control" {
+	if pm.Type == GERSControl {
 		for i := 0; i < len(pm.Devices); i++ {
 			if pm.Devices[i] == device {
 				return map[string]string{"GERS": strconv.Itoa(i), "state": cmd}, nil

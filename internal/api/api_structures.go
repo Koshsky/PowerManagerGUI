@@ -97,8 +97,8 @@ func (sd SensorDataGERS) Str() string {
 	var info string
 
 	info += "Sensor Data Information:\n"
-	info += fmt.Sprintf("Temperature_1: %s\n", sd.Temperature_1)
-	info += fmt.Sprintf("Temperature_2: %s\n", sd.Temperature_2)
+	info += fmt.Sprintf("Temperature 1: %s\n", sd.Temperature_1)
+	info += fmt.Sprintf("Temperature 2: %s\n", sd.Temperature_2)
 
 	return info
 }

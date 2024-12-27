@@ -81,7 +81,7 @@ func (h *Hub) scanSelected(operatingRoom string) []*api.PowerManager {
 
 func (h *Hub) scanAll() []*api.PowerManager {
 	powerManagers := []*api.PowerManager{}
-	for or := 1; or < 5; or++ {
+	for or := 1; or < 256; or++ {  // TODO: add parallelism and test at the bench
 		powerManagers = append(powerManagers, h.scanSelected(strconv.Itoa(or))...)
 	}
 	return powerManagers
