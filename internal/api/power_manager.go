@@ -7,13 +7,18 @@ import (
 	"net/http"
 )
 
+const (
+	GERSControl     = "GERS Control"
+	MonitorAssembly = "Monitor assembly (3.0V)"
+)
+
 type PowerManager struct {
 	IP       string   `json:"ip"`
 	Mask     string   `json:"mask"`
 	Gateway  string   `json:"gateway"`
 	Login    string   `json:"login"`    // for the future
 	Password string   `json:"password"` // for the future
-	Type     string   `json:"type"`     // "GERS control" / "Monitor assembly (3.0V)"
+	Type     string   `json:"type"`
 	Devices  []string `json:"devices"`
 	States   []string `json:"commands"`
 }
@@ -42,13 +47,13 @@ func getDeviceType(ip string) (string, error) {
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	deviceType, err := getDeviceType(ip)
+	deviceType, err := getDeviceTypeMock(ip)
 	if err != nil {
-		return nil, fmt.Errorf("NewPowerManager error: %v", err)
+		return nil, err
 	}
 	pm.Type = deviceType
 
-	if pm.Type == "GERS control" {
+	if pm.Type == GERSControl {
 		pm.Devices = []string{
 			"ALL",
 			"GERS 1",
@@ -58,7 +63,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 			"GERS 5",
 		}
 		pm.States = []string{"ON", "OFF", "Reset", "HardReset"}
-	} else if pm.Type == "Monitor assembly (3.0V)" {
+	} else if pm.Type == MonitorAssembly {
 		pm.Devices = []string{
 			"Mini PC 1",
 			"Mini PC 2",
@@ -71,7 +76,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 		}
 		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
 	} else {
-		return nil, fmt.Errorf("cannot create power manager: uknown type of manager: %s", pm.Type)
+		return nil, fmt.Errorf("cannot create power manager: unknown type of manager: %s", pm.Type)
 	}
 	return pm, nil
 }

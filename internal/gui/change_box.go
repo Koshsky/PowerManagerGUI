@@ -8,6 +8,7 @@ import (
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
 type ChangeBox struct {
@@ -96,9 +97,9 @@ func (cb *ChangeBox) handleRadioChange(selected string) {
 	}
 }
 
-func (cb *ChangeBox) isDeviceActionAllowed(device, state string) bool {
+func (cb *ChangeBox) isDeviceActionAllowed(device, state string) bool {  // TODO: убрать как метод PowerManager.
 	if slices.Contains([]string{"ON", "OFF", "Reset"}, state) {
-		return cb.MT.powerManager.Type == "GERS control" || strings.HasPrefix(device, "Mini PC")
+		return cb.MT.powerManager.Type == api.GERSControl || strings.HasPrefix(device, "Mini PC")
 	}
 	return true
 }

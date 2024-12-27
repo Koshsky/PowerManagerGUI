@@ -25,7 +25,7 @@ func ScanNetwork(operatingRoom string) ([]string, error) {
 	var mu sync.Mutex
 	var allReachableIPs []string
 
-	for i := 1; i <= 254; i++ {
+	for i := 1; i <= 255; i++ {
 		ip := fmt.Sprintf("10.4.%s.%d", operatingRoom, i)
 		wg.Add(1)
 
