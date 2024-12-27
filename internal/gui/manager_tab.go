@@ -33,6 +33,7 @@ func NewManagerTab(pm *api.PowerManager) *container.TabItem {
 
 	return container.NewTabItem(tabTitle, content)
 }
+
 func (mt *ManagerTab) UpdateMessage() {
 	for {
 		switch mt.lastGet {

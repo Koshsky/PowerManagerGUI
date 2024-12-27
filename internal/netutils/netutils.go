@@ -25,20 +25,13 @@ func ScanNetwork(operatingRoom string) ([]string, error) {
 	var mu sync.Mutex
 	var allReachableIPs []string
 
-	roomNum, err := strconv.Atoi(operatingRoom)
-	if err != nil {
-		return []string{}, fmt.Errorf("ScanNetwork: %w", err)
-	} else if roomNum < 1 || roomNum > 255 {
-		return []string{}, fmt.Errorf("ScanNetwork: the operating room number is outside the range 1-255")
-	}
-
 	for i := 1; i <= 254; i++ {
-		ip := fmt.Sprintf("10.4.%d.%d", roomNum, i)
+		ip := fmt.Sprintf("10.4.%s.%d", operatingRoom, i)
 		wg.Add(1)
 
 		go func(ip string) {
 			defer wg.Done()
-			success, _, err := Ping(ip, 80)
+			success, _, err := ping(ip, 80)
 			if err == nil && success {
 				mu.Lock()
 				allReachableIPs = append(allReachableIPs, ip)
@@ -51,7 +44,7 @@ func ScanNetwork(operatingRoom string) ([]string, error) {
 	return allReachableIPs, nil
 }
 
-func Ping(address string, port int) (bool, time.Duration, error) {
+func ping(address string, port int) (bool, time.Duration, error) {
 	startTime := time.Now()
 
 	addr := fmt.Sprintf("%s:%d", address, port)
