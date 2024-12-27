@@ -22,20 +22,20 @@ func getDeviceType(ip string) (string, error) {
 	url := fmt.Sprintf("http://%s/get_info.json", ip)
 	response, err := http.Get(url)
 	if err != nil {
-		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
+		return "UNKNOWN", fmt.Errorf("failed to get device info from %s: %w", ip, err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
+		return "UNKNOWN", fmt.Errorf("received non-200 response from %s: %d", ip, response.StatusCode)
 	}
 	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
-		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
+		return "UNKNOWN", fmt.Errorf("unexpected content type from %s: %s", ip, contentType)
 	}
 
 	var info PowerManagerInfo
 	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
-		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
+		return "UNKNOWN", fmt.Errorf("failed to decode JSON from %s: %w", ip, err)
 	}
 	return info.Type, nil
 }
