@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
+	"strings"
 )
 
 const (
@@ -23,31 +25,29 @@ type PowerManager struct {
 	States   []string `json:"commands"`
 }
 
-func getDeviceType(ip string) (string, error) {
-	url := fmt.Sprintf("http://%s/get_info.json", ip)
-	response, err := http.Get(url)
-	if err != nil {
-		return "UNKNOWN", fmt.Errorf("failed to get device info from %s: %w", ip, err)
+func (pm *PowerManager) IsActionAllowedForDevice(device, state string) bool {
+	if slices.Contains([]string{"ON", "OFF", "Reset"}, state) {
+		return pm.Type == GERSControl || strings.HasPrefix(device, "Mini PC")
 	}
-	defer response.Body.Close()
+	return true
+}
 
-	if response.StatusCode != http.StatusOK {
-		return "UNKNOWN", fmt.Errorf("received non-200 response from %s: %d", ip, response.StatusCode)
+func BuildPowerManagers(IPs []string) []*PowerManager {
+	var powerManagers []*PowerManager
+	for _, ip := range IPs {
+		p, err := NewPowerManager(ip)
+		if err != nil {
+			log.Println(err.Error())
+			continue
+		}
+		powerManagers = append(powerManagers, p)
 	}
-	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
-		return "UNKNOWN", fmt.Errorf("unexpected content type from %s: %s", ip, contentType)
-	}
-
-	var info PowerManagerInfo
-	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
-		return "UNKNOWN", fmt.Errorf("failed to decode JSON from %s: %w", ip, err)
-	}
-	return info.Type, nil
+	return powerManagers
 }
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	deviceType, err := getDeviceTypeMock(ip)
+	deviceType, err := getDeviceTypeMock(ip)  // TODO: replace with getDeviceType
 	if err != nil {
 		return nil, err
 	}
@@ -81,15 +81,24 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 	return pm, nil
 }
 
-func BuildPowerManagers(IPs []string) []*PowerManager {
-	var powerManagers []*PowerManager
-	for _, ip := range IPs {
-		p, err := NewPowerManager(ip)
-		if err != nil {
-			log.Println(err.Error())
-			continue
-		}
-		powerManagers = append(powerManagers, p)
+func getDeviceType(ip string) (string, error) {
+	url := fmt.Sprintf("http://%s/get_info.json", ip)
+	response, err := http.Get(url)
+	if err != nil {
+		return "UNKNOWN", fmt.Errorf("failed to get device info from %s: %w", ip, err)
 	}
-	return powerManagers
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return "UNKNOWN", fmt.Errorf("received non-200 response from %s: %d", ip, response.StatusCode)
+	}
+	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
+		return "UNKNOWN", fmt.Errorf("unexpected content type from %s: %s", ip, contentType)
+	}
+
+	var info PowerManagerInfo
+	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
+		return "UNKNOWN", fmt.Errorf("failed to decode JSON from %s: %w", ip, err)
+	}
+	return info.Type, nil
 }

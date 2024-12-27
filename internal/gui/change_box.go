@@ -2,13 +2,10 @@ package gui
 
 import (
 	"fmt"
-	"slices"
-	"strings"
 
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/Koshsky/PowerManagerGUI/internal/api"
 )
 
 type ChangeBox struct {
@@ -63,7 +60,7 @@ func (cb *ChangeBox) initButtons(states ...string) {
 func (cb *ChangeBox) handleButtonClick(cmd string) {
 	device := cb.RG.Selected
 	cb.MT.lastGet = "get_status"
-	if !cb.isDeviceActionAllowed(device, cmd) {
+	if !cb.MT.powerManager.IsActionAllowedForDevice(device, cmd) {
 		cb.ChangeLabel.SetText(cmd + " command is not allowed for " + device)
 	} else {
 		if device == "ALL" { // special case for ALL GERS
@@ -88,18 +85,11 @@ func (cb *ChangeBox) handleRadioChange(selected string) {
 	cb.ChangeLabel.SetText("Device selected: " + selected + "\nButton clicked: " + cb.States[selected])
 	for _, obj := range cb.Buttons.Objects {
 		if button, ok := obj.(*widget.Button); ok {
-			if cb.isDeviceActionAllowed(selected, button.Text) {
+			if cb.MT.powerManager.IsActionAllowedForDevice(selected, button.Text) {
 				button.Enable()
 			} else {
 				button.Disable()
 			}
 		}
 	}
-}
-
-func (cb *ChangeBox) isDeviceActionAllowed(device, state string) bool {  // TODO: убрать как метод PowerManager.
-	if slices.Contains([]string{"ON", "OFF", "Reset"}, state) {
-		return cb.MT.powerManager.Type == api.GERSControl || strings.HasPrefix(device, "Mini PC")
-	}
-	return true
 }
