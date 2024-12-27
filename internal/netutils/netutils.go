@@ -2,16 +2,28 @@ package netutils
 
 import (
 	"fmt"
+	"net"
 	"strconv"
+	"sync"
 	"time"
-
-	nmap "github.com/Ullaakut/nmap/v2"
 )
 
+func IsValidOctet(input string) bool {
+	octet, err := strconv.Atoi(input)
+	if err != nil {
+		return false
+	}
+	return octet >= 1 && octet <= 255
+}
+
 func ScanNetwork(operatingRoom string) ([]string, error) {
-	if !isValidOctet(operatingRoom) {
+	if !IsValidOctet(operatingRoom) {
 		return []string{}, fmt.Errorf("ScanNetwork: incorrect operating room number [1-255]: %s", operatingRoom)
 	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var allReachableIPs []string
 
 	roomNum, err := strconv.Atoi(operatingRoom)
 	if err != nil {
@@ -20,39 +32,37 @@ func ScanNetwork(operatingRoom string) ([]string, error) {
 		return []string{}, fmt.Errorf("ScanNetwork: the operating room number is outside the range 1-255")
 	}
 
-	subnet := fmt.Sprintf("10.4.%d.0/24", roomNum)
-	return scanSubnet(subnet)
-}
+	for i := 1; i <= 254; i++ {
+		ip := fmt.Sprintf("10.4.%d.%d", roomNum, i)
+		wg.Add(1)
 
-func scanSubnet(subnet string) ([]string, error) {
-	scanner, err := nmap.NewScanner(
-		nmap.WithTargets(subnet),
-		nmap.WithPingScan(),
-		nmap.WithHostTimeout(1*time.Second), // Устанавливаем таймаут в 1 секунду
-	)
-	if err != nil {
-		return []string{}, fmt.Errorf("error creating scanner: %v", err)
+		go func(ip string) {
+			defer wg.Done()
+			success, _, err := Ping(ip, 80)
+			if err == nil && success {
+				mu.Lock()
+				allReachableIPs = append(allReachableIPs, ip)
+				mu.Unlock()
+			}
+		}(ip)
 	}
 
-	result, _, err := scanner.Run()
-	if err != nil {
-		return []string{}, fmt.Errorf("scanning error: %v", err)
-	}
-	print(result)
-
-	var allReachableIPs []string
-	for _, host := range result.Hosts {
-		if host.Status.State == "up" {
-			allReachableIPs = append(allReachableIPs, host.Addresses[0].Addr)
-		}
-	}
+	wg.Wait()
 	return allReachableIPs, nil
 }
 
-func isValidOctet(input string) bool {
-	octet, err := strconv.Atoi(input)
+func Ping(address string, port int) (bool, time.Duration, error) {
+	startTime := time.Now()
+
+	addr := fmt.Sprintf("%s:%d", address, port)
+
+	conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
 	if err != nil {
-		return false
+		return false, 0, fmt.Errorf("failed to connect: %v", err)
 	}
-	return octet >= 1 && octet <= 255
+	defer conn.Close()
+
+	duration := time.Since(startTime)
+
+	return true, duration, nil
 }

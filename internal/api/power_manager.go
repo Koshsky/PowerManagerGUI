@@ -1,10 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
-	"strings"
+	"net/http"
 )
 
 const (
@@ -23,42 +23,36 @@ type PowerManager struct {
 	States   []string `json:"commands"`
 }
 
-func isGersControlIP(ip string) bool {
-	octets := strings.Split(ip, ".")
-	if len(octets) != 4 || octets[0] != "10" || octets[1] != "4" {
-		return false
+func getDeviceType(ip string) (string, error) {
+	url := fmt.Sprintf("http://%s/get_info.json", ip)
+	response, err := http.Get(url)
+	if err != nil {
+		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
 	}
-	thirdOctet, err := strconv.Atoi(octets[2])
-	if err != nil || thirdOctet < 1 || thirdOctet > 255 {
-		return false
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
+	}
+	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
+		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
 	}
 
-	return octets[3] == "5"
-}
-
-func isMonitorAssemblyIP(ip string) bool {
-	octets := strings.Split(ip, ".")
-	if len(octets) != 4 || octets[0] != "10" || octets[1] != "4" {
-		return false
+	var info PowerManagerInfo
+	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
+		return "UNKNOWN", fmt.Errorf("unknown device type: %s", ip)
 	}
-	thirdOctet, err := strconv.Atoi(octets[2])
-	if err != nil || thirdOctet < 1 || thirdOctet > 255 {
-		return false
-	}
-
-	fourthOctet, err := strconv.Atoi(octets[3])
-	return err == nil && 30 <= fourthOctet && fourthOctet <= 38
+	return info.Type, nil
 }
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	if isGersControlIP(ip) {
-		pm.Type = "GERS control"
-	} else if isMonitorAssemblyIP(ip) {
-		pm.Type = "Monitor assembly (3.0V)"
-	} else {
-		return nil, fmt.Errorf("%s device is not GERS control or Monitor Assembly", ip)
+	deviceType, err := getDeviceType(ip)
+	if err != nil {
+		return nil, fmt.Errorf("NewPowerManager error: %v", err)
 	}
+	pm.Type = deviceType
+
 	if pm.Type == "GERS control" {
 		pm.Devices = []string{
 			"ALL",
