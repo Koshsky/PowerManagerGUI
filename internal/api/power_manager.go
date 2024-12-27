@@ -7,11 +7,6 @@ import (
 	"net/http"
 )
 
-const (
-	MASK    = "255.255.255.0"
-	GATEWAY = "192.168.66.1"
-)
-
 type PowerManager struct {
 	IP       string   `json:"ip"`
 	Mask     string   `json:"mask"`
