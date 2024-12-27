@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"slices"
+	"sort"
 	"strings"
 )
 
@@ -42,6 +43,7 @@ func BuildPowerManagers(IPs []string) []*PowerManager {
 		}
 		powerManagers = append(powerManagers, p)
 	}
+	sort.Sort(ByType(powerManagers))
 	return powerManagers
 }
 
