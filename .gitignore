@@ -1,3 +1,4 @@
 *draft*
 *.docx
 *_mock.go
+.vscode
