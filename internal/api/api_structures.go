@@ -43,6 +43,27 @@ type StatusMonitor struct {
 	Reserved2Relay       string `json:"[relay] Reserved 2"`
 }
 
+type StatusMiniPCAssembly struct {
+	MiniPCStatus   string `json:"[status] Mini PC"`
+	MonitorStatus  string `json:"[status] Monitor 220 VAC"`
+	MiniPCRelay    string `json:"[relay] Mini PC"`
+	ConverterRelay string `json:"[relay] Converter"`
+	MonitorRelay   string `json:"[relay] Monitor"`
+}
+
+func (g StatusMiniPCAssembly) Str() string {
+	var info string
+
+	info += "Mini-PC Assembly Status Information:\n"
+	info += fmt.Sprintf("[status] Mini PC: %s\n", g.MiniPCStatus)
+	info += fmt.Sprintf("[status] Monitor 220 VAC: %s\n", g.MonitorStatus)
+	info += fmt.Sprintf("[relay] Mini PC: %s\n", g.MiniPCRelay)
+	info += fmt.Sprintf("[relay] Converter: %s\n", g.ConverterRelay)
+	info += fmt.Sprintf("[relay] Monitor: %s\n", g.MonitorRelay)
+
+	return info
+}
+
 type StatusGERS struct {
 	GERS1Status string `json:"GERS 1"`
 	GERS2Status string `json:"GERS 2"`

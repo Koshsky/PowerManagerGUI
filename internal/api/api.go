@@ -60,6 +60,12 @@ func (pm *PowerManager) GetAnalog() (JSONStringer, error) {
 			return StatusMonitor{}, err
 		}
 		return data, nil
+	} else if pm.Type == MiniPCAssembly {
+		var data SensorDataMonitor
+		if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
+			return StatusMonitor{}, err
+		}
+		return data, nil
 	} else {
 		return StatusMonitor{}, fmt.Errorf("unknown type of power manager: %s", pm.Type)
 	}
@@ -87,6 +93,12 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		}
 		return status, nil
 	} else if pm.Type == MonitorAssembly {
+		var status StatusMiniPCAssembly
+		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
+			return StatusMonitor{}, err
+		}
+		return status, nil
+	} else if pm.Type == MiniPCAssembly {
 		var status StatusMonitor
 		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return StatusMonitor{}, err

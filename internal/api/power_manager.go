@@ -13,6 +13,7 @@ import (
 const (
 	GERSControl     = "GERS Control"
 	MonitorAssembly = "Monitor assembly (3.0V)"
+	MiniPCAssembly  = "Mini-PC assembly"
 )
 
 type PowerManager struct {
@@ -55,6 +56,7 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 	}
 	pm.Type = deviceType
 
+	// TODO: refactor this
 	if pm.Type == GERSControl {
 		pm.Devices = []string{
 			"ALL",
@@ -75,6 +77,13 @@ func NewPowerManager(ip string) (*PowerManager, error) {
 			"Converter 2",
 			"Reserved 1",
 			"Reserved 2",
+		}
+		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
+	} else if pm.Type == MiniPCAssembly {
+		pm.Devices = []string{
+			"Mini PC",
+			"Converter",
+			"Monitor",
 		}
 		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
 	} else {
