@@ -147,14 +147,14 @@ func (pm *PowerManager) ChangeState(device, state string) error {
 }
 
 func (pm *PowerManager) prepareChangeStateBody(device, cmd string) (map[string]string, error) {
-	if !slices.Contains(pm.Devices, device) {
+	if !slices.Contains(pm.GetDevices(), device) {
 		return nil, fmt.Errorf("prepareChangeStateBody: unknown device: %s", device)
-	} else if !slices.Contains(pm.States, cmd) {
+	} else if !slices.Contains(pm.GetActions(), cmd) {
 		return nil, fmt.Errorf("prepareChangeStateBody: unknown command: %s", cmd)
 	}
 	if pm.Type == GERSControl {
-		for i := 0; i < len(pm.Devices); i++ {
-			if pm.Devices[i] == device {
+		for i := 0; i < len(pm.GetDevices()); i++ {
+			if pm.GetDevices()[i] == device {
 				return map[string]string{"GERS": strconv.Itoa(i), "state": cmd}, nil
 			}
 		}

@@ -21,13 +21,13 @@ func (mt *ManagerTab) InitChangeBox() *fyne.Container {
 	cb := ChangeBox{
 		MT:          mt,
 		States:      make(map[string]string),
-		ChangeLabel: widget.NewLabel("Device: " + mt.powerManager.Devices[0] + "\nButton pressed: no one"),
+		ChangeLabel: widget.NewLabel("Device: " + mt.powerManager.GetDevices()[0] + "\nButton pressed: no one"),
 	}
-	for _, device := range mt.powerManager.Devices {
+	for _, device := range mt.powerManager.GetDevices() {
 		cb.States[device] = "no one"
 	}
-	cb.initRadio(mt.powerManager.Devices...)
-	cb.initButtons(mt.powerManager.States...)
+	cb.initRadio(mt.powerManager.GetDevices()...)
+	cb.initButtons(mt.powerManager.GetActions()...)
 	cb.Box = container.NewAdaptiveGrid(3, cb.RG, cb.Buttons, mt.messageLabel)
 	mt.changeBox = cb
 	return cb.Box

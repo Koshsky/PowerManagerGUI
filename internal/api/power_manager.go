@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"slices"
 	"sort"
-	"strings"
 )
 
 const (
@@ -16,22 +14,32 @@ const (
 	MiniPCAssembly  = "Mini-PC assembly"
 )
 
-type PowerManager struct {
-	IP       string   `json:"ip"`
-	Mask     string   `json:"mask"`
-	Gateway  string   `json:"gateway"`
-	Login    string   `json:"login"`    // for the future
-	Password string   `json:"password"` // for the future
-	Type     string   `json:"type"`
-	Devices  []string `json:"devices"`
-	States   []string `json:"commands"`
+type Handler interface {
+	IsActionAllowedForDevice(device, state string) bool
+	GetDevices() []string
+	GetActions() []string
 }
 
-func (pm *PowerManager) IsActionAllowedForDevice(device, state string) bool {
-	if slices.Contains([]string{"ON", "OFF", "Reset"}, state) {
-		return pm.Type == GERSControl || strings.HasPrefix(device, "Mini PC")
-	}
-	return true
+type PowerManager struct {
+	IP       string `json:"ip"`
+	Mask     string `json:"mask"`
+	Gateway  string `json:"gateway"`
+	Login    string `json:"login"`    // for the future
+	Password string `json:"password"` // for the future
+	Type     string `json:"type"`
+	handler  Handler
+}
+
+func (pm *PowerManager) IsActionAllowedForDevice(device, cmd string) bool {
+	return pm.handler.IsActionAllowedForDevice(device, cmd)
+}
+
+func (pm *PowerManager) GetDevices() []string {
+	return pm.handler.GetDevices()
+}
+
+func (pm *PowerManager) GetActions() []string {
+	return pm.handler.GetActions()
 }
 
 func BuildPowerManagers(IPs []string) []*PowerManager {
@@ -50,43 +58,20 @@ func BuildPowerManagers(IPs []string) []*PowerManager {
 
 func NewPowerManager(ip string) (*PowerManager, error) {
 	pm := &PowerManager{IP: ip}
-	deviceType, err := getDeviceType(ip)
+	deviceType, err := getDeviceTypeMock(ip)
 	if err != nil {
 		return nil, err
 	}
 	pm.Type = deviceType
 
-	// TODO: refactor this
-	if pm.Type == GERSControl {
-		pm.Devices = []string{
-			"ALL",
-			"GERS 1",
-			"GERS 2",
-			"GERS 3",
-			"GERS 4",
-			"GERS 5",
-		}
-		pm.States = []string{"ON", "OFF", "Reset", "HardReset"}
-	} else if pm.Type == MonitorAssembly {
-		pm.Devices = []string{
-			"Mini PC 1",
-			"Mini PC 2",
-			"Monitor",
-			"Common power",
-			"Converter 1",
-			"Converter 2",
-			"Reserved 1",
-			"Reserved 2",
-		}
-		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
-	} else if pm.Type == MiniPCAssembly {
-		pm.Devices = []string{
-			"Mini PC",
-			"Converter",
-			"Monitor",
-		}
-		pm.States = []string{"ON", "OFF", "Reset", "Turn ON", "Turn OFF"}
-	} else {
+	switch pm.Type {
+	case GERSControl:
+		pm.handler = &GERSControlManager{}
+	case MonitorAssembly:
+		pm.handler = &MonitorAssemblyManager{}
+	case MiniPCAssembly:
+		pm.handler = &MiniPCAssemblyManager{}
+	default:
 		return nil, fmt.Errorf("cannot create power manager: unknown type of manager: %s", pm.Type)
 	}
 	return pm, nil

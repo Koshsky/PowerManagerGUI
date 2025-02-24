@@ -71,7 +71,7 @@ func (h *Hub) createScanButton(OREntry *widget.Entry, check *widget.Check, label
 }
 
 func (h *Hub) scanSelected(operatingRoom string) []*api.PowerManager {
-	IPs, err := netutils.ScanNetwork(operatingRoom)
+	IPs, err := netutils.MockScanNetwork(operatingRoom)
 	if err != nil {
 		h.messageLabel.SetText(err.Error())
 		return nil
