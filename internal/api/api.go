@@ -10,6 +10,28 @@ import (
 	"strconv"
 )
 
+func getDeviceType(ip string) (string, error) {
+	url := fmt.Sprintf("http://%s/get_info.json", ip)
+	response, err := http.Get(url)
+	if err != nil {
+		return "UNKNOWN", fmt.Errorf("failed to get device info from %s: %w", ip, err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return "UNKNOWN", fmt.Errorf("received non-200 response from %s: %d", ip, response.StatusCode)
+	}
+	if contentType := response.Header.Get("Content-Type"); contentType != "application/json" {
+		return "UNKNOWN", fmt.Errorf("unexpected content type from %s: %s", ip, contentType)
+	}
+
+	var info PowerManagerInfo
+	if err := json.NewDecoder(response.Body).Decode(&info); err != nil {
+		return "UNKNOWN", fmt.Errorf("failed to decode JSON from %s: %w", ip, err)
+	}
+	return info.Type, nil
+}
+
 func (pm *PowerManager) GetInfo() (JSONStringer, error) {
 	url := fmt.Sprintf("http://%s/get_info.json", pm.IP)
 	response, err := http.Get(url)
@@ -48,7 +70,7 @@ func (pm *PowerManager) GetAnalog() (JSONStringer, error) {
 		return SensorDataMonitor{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	if pm.Type == GERSControl {
+	if pm.Type == GERSControl { // TODO: refactor this with gui_handler
 		var data SensorDataGERS
 		if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
 			return StatusGERS{}, err
@@ -86,7 +108,7 @@ func (pm *PowerManager) GetStatus() (JSONStringer, error) {
 		return StatusMonitor{}, fmt.Errorf("unexpected Content-Type: %s", contentType)
 	}
 
-	if pm.Type == GERSControl {
+	if pm.Type == GERSControl { // TODO: refactor this with gui_handler
 		var status StatusGERS
 		if err := json.NewDecoder(response.Body).Decode(&status); err != nil {
 			return StatusGERS{}, err
@@ -152,7 +174,7 @@ func (pm *PowerManager) prepareChangeStateBody(device, cmd string) (map[string]s
 	} else if !slices.Contains(pm.GetActions(), cmd) {
 		return nil, fmt.Errorf("prepareChangeStateBody: unknown command: %s", cmd)
 	}
-	if pm.Type == GERSControl {
+	if pm.Type == GERSControl { // TODO: refactor this with gui_handler
 		for i := 0; i < len(pm.GetDevices()); i++ {
 			if pm.GetDevices()[i] == device {
 				return map[string]string{"GERS": strconv.Itoa(i), "state": cmd}, nil

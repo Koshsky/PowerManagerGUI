@@ -60,7 +60,7 @@ func (cb *ChangeBox) initButtons(states ...string) {
 func (cb *ChangeBox) handleButtonClick(cmd string) {
 	device := cb.RG.Selected
 	cb.MT.lastGet = "get_status"
-	if !cb.MT.powerManager.IsActionAllowedForDevice(device, cmd) {
+	if !cb.MT.powerManager.IsActionAllowed(device, cmd) {
 		cb.ChangeLabel.SetText(cmd + " command is not allowed for " + device)
 	} else {
 		if device == "ALL" { // special case for ALL GERS
@@ -85,7 +85,7 @@ func (cb *ChangeBox) handleRadioChange(selected string) {
 	cb.ChangeLabel.SetText("Device selected: " + selected + "\nButton clicked: " + cb.States[selected])
 	for _, obj := range cb.Buttons.Objects {
 		if button, ok := obj.(*widget.Button); ok {
-			if cb.MT.powerManager.IsActionAllowedForDevice(selected, button.Text) {
+			if cb.MT.powerManager.IsActionAllowed(selected, button.Text) {
 				button.Enable()
 			} else {
 				button.Disable()
